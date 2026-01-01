@@ -88,7 +88,6 @@ export function initGUI() {
   // Character Effects folder
   const effectsFolder = gui.addFolder("✨ Character Effects");
 
-  // Manual effect type selection at top
   effectsFolder
     .add(params, "effectType", [
       "none",
@@ -101,14 +100,14 @@ export function initGUI() {
     ])
     .name("Effect Type")
     .onChange(() => {
-      // Reset auto-triggers when manually switching
+      // Sync auto-triggers when manually switching
       params._disperseTarget = params.effectType === "disperse" ? 1 : 0;
       params._spiralFlowActive = params.effectType === "spiralFlow";
     });
 
   effectsFolder.open();
 
-  // Quick Actions folder - auto-trigger buttons
+  // Quick Actions folder - buttons for all effects
   const actionsFolder = gui.addFolder("⚡ Quick Actions");
 
   const effectActions = {

@@ -75,7 +75,7 @@ export const CONFIG = {
 
   // Scene settings
   scene: {
-    backgroundColor: 0x033363,
+    backgroundColor: 0x000000,
   },
 
   // Model settings
@@ -104,7 +104,7 @@ export const params = {
   samplingDensity: CONFIG.defaults.samplingDensity,
   characterSize: CONFIG.defaults.characterSize,
   color: CONFIG.defaults.color,
-  backgroundColor: "#033363",
+  backgroundColor: "#00000000",
   animationSpeed: CONFIG.defaults.animationSpeed,
   billboardMode: CONFIG.defaults.billboardMode,
   emissiveIntensity: CONFIG.defaults.emissiveIntensity,
