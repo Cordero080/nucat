@@ -111,30 +111,46 @@ export function initGUI() {
   // Quick Actions folder - auto-trigger buttons
   const actionsFolder = gui.addFolder("⚡ Quick Actions");
 
-  const disperseObj = {
+  const effectActions = {
+    hover: () => {
+      params.effectType = "hover";
+    },
+    noise: () => {
+      params.effectType = "noise";
+    },
+    wave: () => {
+      params.effectType = "wave";
+    },
+    spiral: () => {
+      params.effectType = "spiral";
+    },
     disperse: () => {
+      params.effectType = "disperse";
       params._disperseTarget = 1;
     },
     return: () => {
       params._disperseTarget = 0;
     },
-  };
-
-  actionsFolder.add(disperseObj, "disperse").name("💥 Disperse!");
-  actionsFolder.add(disperseObj, "return").name("🔄 Return");
-
-  const spiralFlowObj = {
-    play: () => {
+    spiralFlow: () => {
+      params.effectType = "spiralFlow";
       params._spiralFlowActive = true;
       params.spiralFlowProgress = 0;
     },
     stop: () => {
+      params.effectType = "none";
+      params._disperseTarget = 0;
       params._spiralFlowActive = false;
     },
   };
 
-  actionsFolder.add(spiralFlowObj, "play").name("🌀 Spiral Flow!");
-  actionsFolder.add(spiralFlowObj, "stop").name("⏹ Stop");
+  actionsFolder.add(effectActions, "hover").name("🎈 Hover");
+  actionsFolder.add(effectActions, "noise").name("⚡ Noise");
+  actionsFolder.add(effectActions, "wave").name("🌊 Wave");
+  actionsFolder.add(effectActions, "spiral").name("🔄 Spiral");
+  actionsFolder.add(effectActions, "disperse").name("💥 Disperse!");
+  actionsFolder.add(effectActions, "return").name("↩️ Return");
+  actionsFolder.add(effectActions, "spiralFlow").name("🌀 Spiral Flow!");
+  actionsFolder.add(effectActions, "stop").name("⏹ Stop All");
 
   actionsFolder.open();
 
