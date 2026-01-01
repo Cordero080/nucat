@@ -10,6 +10,7 @@ import {
   onColorChange,
   onGlowChange,
   onBloomChange,
+  onBackgroundChange,
   resetDefaults,
 } from "./handlers.js";
 
@@ -54,7 +55,15 @@ export function initGUI() {
   // Color settings folder
   const colorFolder = gui.addFolder("Color Settings");
 
-  colorFolder.addColor(params, "color").name("Color").onChange(onColorChange);
+  colorFolder
+    .addColor(params, "color")
+    .name("Char Color")
+    .onChange(onColorChange);
+
+  colorFolder
+    .addColor(params, "backgroundColor")
+    .name("Background")
+    .onChange(onBackgroundChange);
 
   const presetController = colorFolder
     .add({ preset: "Cyan" }, "preset", Object.keys(CONFIG.colorPresets))

@@ -104,6 +104,7 @@ export const params = {
   samplingDensity: CONFIG.defaults.samplingDensity,
   characterSize: CONFIG.defaults.characterSize,
   color: CONFIG.defaults.color,
+  backgroundColor: "#033363",
   animationSpeed: CONFIG.defaults.animationSpeed,
   billboardMode: CONFIG.defaults.billboardMode,
   emissiveIntensity: CONFIG.defaults.emissiveIntensity,

@@ -4,7 +4,7 @@
 
 import * as THREE from "three";
 import { CONFIG, params } from "../config.js";
-import { instancedMesh, composer } from "../state.js";
+import { instancedMesh, composer, scene } from "../state.js";
 import { sampleVertices } from "../ascii/sampling.js";
 import { createCharacterGeometry } from "../ascii/geometry.js";
 import { createInstancedMesh } from "../ascii/instancedMesh.js";
@@ -56,6 +56,15 @@ export function onBloomChange() {
     composer.bloomPass.strength = params.bloomStrength;
     composer.bloomPass.radius = params.bloomRadius;
     composer.bloomPass.threshold = params.bloomThreshold;
+  }
+}
+
+/**
+ * Handle background color change
+ */
+export function onBackgroundChange() {
+  if (scene) {
+    scene.background = new THREE.Color(params.backgroundColor);
   }
 }
 
