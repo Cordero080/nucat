@@ -124,4 +124,7 @@ export const params = {
   spiralFlowSpeed: 1.0, // Speed of the spiral flow
   spiralFlowWaves: 5, // Number of wave groups
   _spiralFlowActive: false, // Is animation running
+
+  // Return control
+  _isReturning: false, // Gradually fade out all effects
 };

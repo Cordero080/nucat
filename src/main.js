@@ -100,6 +100,17 @@ function animate() {
   // Update effect time
   updateEffectTime(delta);
 
+  // Handle gradual return - fade out effectIntensity
+  if (params._isReturning) {
+    params.effectIntensity *= 0.95;
+    if (params.effectIntensity < 0.1) {
+      params.effectIntensity = 0;
+      params.effectType = "none";
+      params._isReturning = false;
+      params.effectIntensity = 5.0; // Reset for next effect
+    }
+  }
+
   // Animate disperse effect (works with button OR effectType)
   const disperseTarget =
     params._disperseTarget ?? (params.effectType === "disperse" ? 1 : 0);

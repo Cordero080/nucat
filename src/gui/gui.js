@@ -112,30 +112,39 @@ export function initGUI() {
 
   const effectActions = {
     hover: () => {
+      params._isReturning = false;
       params.effectType = "hover";
     },
     noise: () => {
+      params._isReturning = false;
       params.effectType = "noise";
     },
     wave: () => {
+      params._isReturning = false;
       params.effectType = "wave";
     },
     spiral: () => {
+      params._isReturning = false;
       params.effectType = "spiral";
     },
     disperse: () => {
+      params._isReturning = false;
       params.effectType = "disperse";
       params._disperseTarget = 1;
     },
     return: () => {
+      params._isReturning = true;
       params._disperseTarget = 0;
+      params._spiralFlowActive = false;
     },
     spiralFlow: () => {
+      params._isReturning = false;
       params.effectType = "spiralFlow";
       params._spiralFlowActive = true;
       params.spiralFlowProgress = 0;
     },
     stop: () => {
+      params._isReturning = false;
       params.effectType = "none";
       params._disperseTarget = 0;
       params._spiralFlowActive = false;
@@ -156,7 +165,7 @@ export function initGUI() {
   // Effect Parameters folder
   const effectParamsFolder = gui.addFolder("🎛 Effect Parameters");
 
-  effectParamsFolder.add(params, "effectIntensity", 0, 50, 1).name("Intensity");
+  effectParamsFolder.add(params, "effectIntensity", 0, 300, 1).name("Intensity");
   effectParamsFolder
     .add(params, "effectSpeed", 0.1, 5, 0.1)
     .name("Effect Speed");
