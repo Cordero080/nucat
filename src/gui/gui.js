@@ -107,65 +107,117 @@ export function initGUI() {
 
   effectsFolder.open();
 
-  // Quick Actions folder - buttons for all effects
+  // Quick Actions folder - toggle buttons for layered effects
   const actionsFolder = gui.addFolder("⚡ Quick Actions");
 
+  // Store button controllers for color updates
+  const effectButtons = {};
+
+  // Active button style
+  const ACTIVE_COLOR = "#00ff66";
+  const INACTIVE_COLOR = "";
+
+  function updateButtonStyle(controller, isActive) {
+    const el = controller.domElement.closest(".controller");
+    if (el) {
+      el.style.backgroundColor = isActive ? ACTIVE_COLOR : INACTIVE_COLOR;
+      el.style.color = isActive ? "#000" : "";
+    }
+  }
+
+  function resetAllButtons() {
+    Object.values(effectButtons).forEach((ctrl) => {
+      updateButtonStyle(ctrl, false);
+    });
+  }
+
+  // Toggle effect function
+  function toggleEffect(effectName) {
+    params._isReturning = false;
+    const isActive = params.activeEffects[effectName];
+
+    if (isActive) {
+      // Turn off this effect
+      params.activeEffects[effectName] = false;
+      updateButtonStyle(effectButtons[effectName], false);
+    } else {
+      // Turn on this effect
+      params.activeEffects[effectName] = true;
+      updateButtonStyle(effectButtons[effectName], true);
+
+      // Special handling for disperse
+      if (effectName === "disperse") {
+        params._disperseTarget = 1;
+      }
+      // Special handling for spiralFlow
+      if (effectName === "spiralFlow") {
+        params._spiralFlowActive = true;
+        params.spiralFlowProgress = 0;
+      }
+    }
+
+    // Update legacy effectType for dropdown sync
+    const activeList = Object.entries(params.activeEffects)
+      .filter(([_, v]) => v)
+      .map(([k]) => k);
+    params.effectType = activeList.length > 0 ? activeList[0] : "none";
+  }
+
   const effectActions = {
-    hover: () => {
-      params._isReturning = false;
-      params.effectType = "hover";
-    },
-    noise: () => {
-      params._isReturning = false;
-      params.effectType = "noise";
-    },
-    wave: () => {
-      params._isReturning = false;
-      params.effectType = "wave";
-    },
-    spiral: () => {
-      params._isReturning = false;
-      params.effectType = "spiral";
-    },
-    disperse: () => {
-      params._isReturning = false;
-      params.effectType = "disperse";
-      params._disperseTarget = 1;
-    },
+    hover: () => toggleEffect("hover"),
+    noise: () => toggleEffect("noise"),
+    wave: () => toggleEffect("wave"),
+    spiral: () => toggleEffect("spiral"),
+    disperse: () => toggleEffect("disperse"),
+    spiralFlow: () => toggleEffect("spiralFlow"),
     return: () => {
       params._isReturning = true;
       params._disperseTarget = 0;
       params._spiralFlowActive = false;
     },
-    spiralFlow: () => {
-      params._isReturning = false;
-      params.effectType = "spiralFlow";
-      params._spiralFlowActive = true;
-      params.spiralFlowProgress = 0;
-    },
     stop: () => {
       params._isReturning = false;
+      // Turn off all effects immediately
+      Object.keys(params.activeEffects).forEach((key) => {
+        params.activeEffects[key] = false;
+      });
       params.effectType = "none";
       params._disperseTarget = 0;
       params._spiralFlowActive = false;
+      resetAllButtons();
     },
   };
 
-  actionsFolder.add(effectActions, "hover").name("🎈 Hover");
-  actionsFolder.add(effectActions, "noise").name("⚡ Noise");
-  actionsFolder.add(effectActions, "wave").name("🌊 Wave");
-  actionsFolder.add(effectActions, "spiral").name("🔄 Spiral");
-  actionsFolder.add(effectActions, "disperse").name("💥 Disperse!");
+  effectButtons.hover = actionsFolder
+    .add(effectActions, "hover")
+    .name("🎈 Hover");
+  effectButtons.noise = actionsFolder
+    .add(effectActions, "noise")
+    .name("⚡ Noise");
+  effectButtons.wave = actionsFolder.add(effectActions, "wave").name("🌊 Wave");
+  effectButtons.spiral = actionsFolder
+    .add(effectActions, "spiral")
+    .name("🔄 Spiral");
+  effectButtons.disperse = actionsFolder
+    .add(effectActions, "disperse")
+    .name("💥 Disperse!");
+  effectButtons.spiralFlow = actionsFolder
+    .add(effectActions, "spiralFlow")
+    .name("🌀 Spiral Flow!");
   actionsFolder.add(effectActions, "return").name("↩️ Return");
-  actionsFolder.add(effectActions, "spiralFlow").name("🌀 Spiral Flow!");
   actionsFolder.add(effectActions, "stop").name("⏹ Stop All");
+
+  // Store resetAllButtons for use in main.js when return completes
+  params._resetAllButtons = resetAllButtons;
 
   actionsFolder.open();
 
   // Effect Parameters folder
   const effectParamsFolder = gui.addFolder("🎛 Effect Parameters");
 
-  effectParamsFolder.add(params, "effectIntensity", 0, 300, 1).name("Intensity");
+  effectParamsFolder
+    .add(params, "effectIntensity", 0, 300, 1)
+    .name("Intensity");
   effectParamsFolder
     .add(params, "effectSpeed", 0.1, 5, 0.1)
     .name("Effect Speed");

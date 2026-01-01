@@ -178,21 +178,28 @@ export function updateASCIIPositions() {
 }
 
 /**
- * Apply visual effects to character position
+ * Apply visual effects to character position - supports layering multiple effects
  */
 function applyEffects(instanceIndex, position) {
-  const { effectType, effectIntensity, effectSpeed, disperseAmount } = params;
+  const { activeEffects, effectIntensity, effectSpeed, disperseAmount } =
+    params;
 
-  if (effectType === "none") return;
+  // Check if any effects are active
+  const hasActiveEffect = Object.values(activeEffects).some((v) => v);
+  if (!hasActiveEffect && params.effectType === "none") return;
 
   const time = effectTime * effectSpeed;
   const phase = instanceIndex * 0.1;
 
-  if (effectType === "hover") {
+  // Apply hover effect
+  if (activeEffects.hover || params.effectType === "hover") {
     position.x += Math.sin(time * 2 + phase) * effectIntensity * 0.5;
     position.y += Math.sin(time * 3 + phase * 1.3) * effectIntensity * 0.3;
     position.z += Math.cos(time * 2.5 + phase * 0.7) * effectIntensity * 0.4;
-  } else if (effectType === "disperse") {
+  }
+
+  // Apply disperse effect
+  if (activeEffects.disperse || params.effectType === "disperse") {
     if (disperseDirections[instanceIndex]) {
       const dir = disperseDirections[instanceIndex];
       const distance = disperseAmount * effectIntensity * 10;
@@ -200,20 +207,32 @@ function applyEffects(instanceIndex, position) {
       position.y += dir.y * distance;
       position.z += dir.z * distance;
     }
-  } else if (effectType === "noise") {
+  }
+
+  // Apply noise effect
+  if (activeEffects.noise || params.effectType === "noise") {
     const noiseScale = effectIntensity * 0.5;
     position.x += Math.sin(time * 10 + instanceIndex * 100) * noiseScale;
     position.y += Math.cos(time * 12 + instanceIndex * 73) * noiseScale;
     position.z += Math.sin(time * 8 + instanceIndex * 47) * noiseScale;
-  } else if (effectType === "wave") {
+  }
+
+  // Apply wave effect
+  if (activeEffects.wave || params.effectType === "wave") {
     const waveOffset = Math.sin(time * 2 + position.y * 0.05) * effectIntensity;
     position.x += waveOffset;
-  } else if (effectType === "spiral") {
+  }
+
+  // Apply spiral effect
+  if (activeEffects.spiral || params.effectType === "spiral") {
     const angle = time * 2 + phase;
     const radius = effectIntensity * 0.5;
     position.x += Math.cos(angle) * radius;
     position.z += Math.sin(angle) * radius;
-  } else if (effectType === "spiralFlow") {
+  }
+
+  // Apply spiralFlow effect
+  if (activeEffects.spiralFlow || params.effectType === "spiralFlow") {
     applySpiralFlowEffect(instanceIndex, position, time);
   }
 }

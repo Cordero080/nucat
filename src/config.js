@@ -112,8 +112,16 @@ export const params = {
   bloomRadius: CONFIG.defaults.bloomRadius,
   bloomThreshold: CONFIG.defaults.bloomThreshold,
 
-  // Character effects
-  effectType: "none", // "none", "hover", "disperse", "noise", "wave", "spiral", "spiralFlow"
+  // Character effects - now supports layering multiple effects
+  effectType: "none", // Legacy - kept for dropdown
+  activeEffects: {
+    hover: false,
+    noise: false,
+    wave: false,
+    spiral: false,
+    disperse: false,
+    spiralFlow: false,
+  },
   effectIntensity: 5.0, // How far characters move
   effectSpeed: 1.0, // Speed of the effect
   disperseAmount: 0.0, // 0 = home, 1 = fully dispersed (animated)

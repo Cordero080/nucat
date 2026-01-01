@@ -106,21 +106,35 @@ function animate() {
     if (params.effectIntensity < 0.1) {
       params.effectIntensity = 0;
       params.effectType = "none";
+      // Turn off all active effects
+      Object.keys(params.activeEffects).forEach((key) => {
+        params.activeEffects[key] = false;
+      });
       params._isReturning = false;
       params.effectIntensity = 5.0; // Reset for next effect
+      // Reset button colors
+      if (params._resetAllButtons) {
+        params._resetAllButtons();
+      }
     }
   }
 
-  // Animate disperse effect (works with button OR effectType)
-  const disperseTarget =
-    params._disperseTarget ?? (params.effectType === "disperse" ? 1 : 0);
+  // Animate disperse effect (works with button OR activeEffects)
+  const disperseActive =
+    params.activeEffects?.disperse || params.effectType === "disperse";
+  const disperseTarget = params._disperseTarget ?? (disperseActive ? 1 : 0);
   params.disperseAmount +=
     (disperseTarget - params.disperseAmount) * 0.02 * params.effectSpeed;
 
   // Animate spiral flow effect
-  if (params._spiralFlowActive || params.effectType === "spiralFlow") {
+  const spiralFlowActive =
+    params.activeEffects?.spiralFlow || params.effectType === "spiralFlow";
+  if (params._spiralFlowActive || spiralFlowActive) {
     params.spiralFlowProgress += delta * params.spiralFlowSpeed;
-  } else if (params.effectType !== "spiralFlow") {
+    if (params.spiralFlowProgress > 5.0) {
+      params.spiralFlowProgress = 0;
+    }
+  } else {
     params.spiralFlowProgress *= 0.95; // Smooth fade out
   }
 
