@@ -3,7 +3,7 @@
  */
 
 import * as THREE from "three";
-import { camera, controls } from "../state.js";
+import { camera, controls, setModelCenter } from "../state.js";
 
 /**
  * Auto-frame camera to fit the loaded model
@@ -12,6 +12,9 @@ export function autoFrameCamera(fbx) {
   const box = new THREE.Box3().setFromObject(fbx);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
+
+  // Store model center for effects
+  setModelCenter({ x: center.x, y: center.y, z: center.z });
 
   const maxDim = Math.max(size.x, size.y, size.z);
   const fov = camera.fov * (Math.PI / 180);

@@ -13,6 +13,7 @@ import {
   skinnedMeshes,
   controls,
   composer,
+  updateEffectTime,
 } from "./state.js";
 
 // Core setup
@@ -26,7 +27,10 @@ import { loadFont } from "./loaders/fontLoader.js";
 import { loadFBXModel } from "./loaders/fbxLoader.js";
 
 // ASCII system
-import { initializeASCIIPointCloud, updateASCIIPositions } from "./ascii/index.js";
+import {
+  initializeASCIIPointCloud,
+  updateASCIIPositions,
+} from "./ascii/index.js";
 
 // GUI
 import { initGUI } from "./gui/gui.js";
@@ -92,6 +96,24 @@ function animate() {
   skinnedMeshes.forEach((mesh) => {
     mesh.skeleton.update();
   });
+
+  // Update effect time
+  updateEffectTime(delta);
+
+  // Animate disperse effect
+  if (params.effectType === "disperse") {
+    const disperseTarget = 1;
+    params.disperseAmount += (disperseTarget - params.disperseAmount) * 0.02;
+  } else {
+    params.disperseAmount += (0 - params.disperseAmount) * 0.05;
+  }
+
+  // Animate spiral flow effect
+  if (params.effectType === "spiralFlow") {
+    params.spiralFlowProgress += delta * params.spiralFlowSpeed;
+  } else {
+    params.spiralFlowProgress = 0;
+  }
 
   // Update ASCII positions
   updateASCIIPositions();

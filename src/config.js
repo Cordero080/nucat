@@ -111,4 +111,17 @@ export const params = {
   bloomStrength: CONFIG.defaults.bloomStrength,
   bloomRadius: CONFIG.defaults.bloomRadius,
   bloomThreshold: CONFIG.defaults.bloomThreshold,
+
+  // Character effects
+  effectType: "none", // "none", "hover", "disperse", "noise", "wave", "spiral", "spiralFlow"
+  effectIntensity: 5.0, // How far characters move
+  effectSpeed: 1.0, // Speed of the effect
+  disperseAmount: 0.0, // 0 = home, 1 = fully dispersed (animated)
+  _disperseTarget: 0, // Internal: target for disperse animation
+
+  // Spiral Flow effect
+  spiralFlowProgress: 0.0, // 0 = all home, 1 = full animation cycle
+  spiralFlowSpeed: 1.0, // Speed of the spiral flow
+  spiralFlowWaves: 5, // Number of wave groups
+  _spiralFlowActive: false, // Is animation running
 };

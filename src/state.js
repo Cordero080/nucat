@@ -30,6 +30,33 @@ export let sampledVertexIndices = [];
 export let vertexWeights = [];
 export let vertexBoneIndices = [];
 
+// Effect state
+export let effectTime = 0;
+export let disperseDirections = []; // Random direction for each character
+export let isDispersing = false;
+export let disperseTarget = 0; // Target disperse amount (0 or 1)
+export let modelCenter = { x: 0, y: 50, z: 0 }; // Center of the model for spiral effects
+
+export function updateEffectTime(delta) {
+  effectTime += delta;
+}
+
+export function setDisperseDirections(dirs) {
+  disperseDirections = dirs;
+}
+
+export function setIsDispersing(val) {
+  isDispersing = val;
+}
+
+export function setModelCenter(center) {
+  modelCenter = center;
+}
+
+export function setDisperseTarget(val) {
+  disperseTarget = val;
+}
+
 // Temporary objects for matrix calculations (reused for performance)
 export const tempMatrix = new THREE.Matrix4();
 export const tempPosition = new THREE.Vector3();

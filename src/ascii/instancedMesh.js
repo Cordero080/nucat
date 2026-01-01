@@ -17,6 +17,10 @@ import {
   tempQuaternion,
   tempScale,
   tempNormal,
+  effectTime,
+  disperseDirections,
+  setDisperseDirections,
+  modelCenter,
 } from "../state.js";
 import { getSkinnedVertexPosition } from "./skinning.js";
 
@@ -57,6 +61,19 @@ export function createInstancedMesh() {
   mesh.instanceMatrix.needsUpdate = true;
   scene.add(mesh);
   setInstancedMesh(mesh);
+
+  // Generate random disperse directions for each character
+  const directions = [];
+  for (let i = 0; i < instanceCount; i++) {
+    directions.push(
+      new THREE.Vector3(
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2
+      ).normalize()
+    );
+  }
+  setDisperseDirections(directions);
 
   console.log(`Created InstancedMesh with ${instanceCount} instances`);
 
@@ -149,10 +166,113 @@ export function updateASCIIPositions() {
       }
     }
 
+    // Apply effects to position
+    applyEffects(instanceIndex, tempPosition);
+
     tempScale.setScalar(1);
     tempMatrix.compose(tempPosition, tempQuaternion, tempScale);
     instancedMesh.setMatrixAt(instanceIndex, tempMatrix);
   });
 
   instancedMesh.instanceMatrix.needsUpdate = true;
+}
+
+/**
+ * Apply visual effects to character position
+ */
+function applyEffects(instanceIndex, position) {
+  const { effectType, effectIntensity, effectSpeed, disperseAmount } = params;
+
+  if (effectType === "none") return;
+
+  const time = effectTime * effectSpeed;
+  const phase = instanceIndex * 0.1;
+
+  if (effectType === "hover") {
+    position.x += Math.sin(time * 2 + phase) * effectIntensity * 0.5;
+    position.y += Math.sin(time * 3 + phase * 1.3) * effectIntensity * 0.3;
+    position.z += Math.cos(time * 2.5 + phase * 0.7) * effectIntensity * 0.4;
+  } else if (effectType === "disperse") {
+    if (disperseDirections[instanceIndex]) {
+      const dir = disperseDirections[instanceIndex];
+      const distance = disperseAmount * effectIntensity * 10;
+      position.x += dir.x * distance;
+      position.y += dir.y * distance;
+      position.z += dir.z * distance;
+    }
+  } else if (effectType === "noise") {
+    const noiseScale = effectIntensity * 0.5;
+    position.x += Math.sin(time * 10 + instanceIndex * 100) * noiseScale;
+    position.y += Math.cos(time * 12 + instanceIndex * 73) * noiseScale;
+    position.z += Math.sin(time * 8 + instanceIndex * 47) * noiseScale;
+  } else if (effectType === "wave") {
+    const waveOffset = Math.sin(time * 2 + position.y * 0.05) * effectIntensity;
+    position.x += waveOffset;
+  } else if (effectType === "spiral") {
+    const angle = time * 2 + phase;
+    const radius = effectIntensity * 0.5;
+    position.x += Math.cos(angle) * radius;
+    position.z += Math.sin(angle) * radius;
+  } else if (effectType === "spiralFlow") {
+    applySpiralFlowEffect(instanceIndex, position, time);
+  }
+}
+
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+/**
+ * Spiral Flow Effect - Characters flow out in waves, spiral around, return
+ */
+function applySpiralFlowEffect(instanceIndex, position, time) {
+  const { spiralFlowProgress, effectIntensity, spiralFlowWaves } = params;
+  
+  if (spiralFlowProgress <= 0) return;
+  
+  const center = modelCenter || { x: 0, y: 50, z: 0 };
+  
+  // Characters at top flow out first, then middle, then bottom
+  const normalizedY = (position.y - center.y + 100) / 200;
+  const waveIndex = Math.floor(normalizedY * spiralFlowWaves);
+  const wavePhase = waveIndex / spiralFlowWaves;
+  
+  // Add randomness for organic feel
+  const randomOffset = (instanceIndex % 100) / 100 * 0.3;
+  
+  // Calculate when this character should start moving
+  const charStartTime = wavePhase * 0.5 + randomOffset * 0.2;
+  const charEndTime = charStartTime + 0.5;
+  
+  // Progress for this character
+  let charProgress = 0;
+  if (spiralFlowProgress > charStartTime) {
+    if (spiralFlowProgress < charEndTime) {
+      charProgress = (spiralFlowProgress - charStartTime) / (charEndTime - charStartTime);
+    } else if (spiralFlowProgress < charEndTime + 0.3) {
+      charProgress = 1 - ((spiralFlowProgress - charEndTime) / 0.3);
+    } else {
+      charProgress = 0;
+    }
+  }
+  
+  if (charProgress <= 0) return;
+  
+  const smoothProgress = easeInOutCubic(Math.min(charProgress, 1));
+  
+  const spiralRadius = effectIntensity * 3 * smoothProgress;
+  const spiralHeight = effectIntensity * 2 * smoothProgress;
+  
+  const angleOffset = instanceIndex * 0.01 + wavePhase * Math.PI * 2;
+  const spiralAngle = time * 3 + angleOffset + smoothProgress * Math.PI * 4;
+  
+  const dirX = position.x - center.x;
+  const dirZ = position.z - center.z;
+  const dirLen = Math.sqrt(dirX * dirX + dirZ * dirZ) || 1;
+  
+  const outwardDist = effectIntensity * 2 * smoothProgress;
+  
+  position.x += (dirX / dirLen) * outwardDist + Math.cos(spiralAngle) * spiralRadius;
+  position.y += Math.sin(smoothProgress * Math.PI) * spiralHeight;
+  position.z += (dirZ / dirLen) * outwardDist + Math.sin(spiralAngle) * spiralRadius;
 }

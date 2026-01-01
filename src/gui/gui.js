@@ -85,6 +85,69 @@ export function initGUI() {
   animFolder.add(params, "billboardMode").name("Billboard Mode");
   animFolder.open();
 
+  // Character Effects folder
+  const effectsFolder = gui.addFolder("✨ Character Effects");
+
+  effectsFolder
+    .add(params, "effectType", [
+      "none",
+      "hover",
+      "disperse",
+      "noise",
+      "wave",
+      "spiral",
+      "spiralFlow",
+    ])
+    .name("Effect Type")
+    .onChange(() => {
+      // Reset effects when switching
+      if (params.effectType !== "disperse") {
+        params.disperseAmount = 0;
+        params._disperseTarget = 0;
+      }
+      if (params.effectType !== "spiralFlow") {
+        params.spiralFlowProgress = 0;
+        params._spiralFlowActive = false;
+      }
+    });
+
+  effectsFolder.add(params, "effectIntensity", 0, 50, 1).name("Intensity");
+
+  effectsFolder.add(params, "effectSpeed", 0.1, 5, 0.1).name("Speed");
+
+  // Disperse controls
+  const disperseObj = {
+    disperse: () => {
+      params._disperseTarget = 1;
+    },
+    return: () => {
+      params._disperseTarget = 0;
+    },
+  };
+
+  effectsFolder.add(disperseObj, "disperse").name("💥 Disperse!");
+  effectsFolder.add(disperseObj, "return").name("🔄 Return");
+
+  // Spiral Flow controls
+  const spiralFlowObj = {
+    play: () => {
+      params.effectType = "spiralFlow";
+      params.spiralFlowProgress = 0;
+      params._spiralFlowActive = true;
+    },
+    stop: () => {
+      params._spiralFlowActive = false;
+      params.spiralFlowProgress = 0;
+    },
+  };
+
+  effectsFolder.add(spiralFlowObj, "play").name("🌀 Spiral Flow!");
+  effectsFolder.add(spiralFlowObj, "stop").name("⏹ Stop");
+  effectsFolder.add(params, "spiralFlowSpeed", 0.1, 3, 0.1).name("Flow Speed");
+  effectsFolder.add(params, "spiralFlowWaves", 1, 10, 1).name("Wave Groups");
+
+  effectsFolder.open();
+
   // Bloom settings folder
   const bloomFolder = gui.addFolder("Bloom Effect");
 
