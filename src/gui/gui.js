@@ -97,7 +97,9 @@ export function initGUI() {
   bloomFolder.open();
 
   // Reset button
-  gui.add({ reset: () => resetDefaults(gui) }, "reset").name("🔄 Reset to Defaults");
+  gui
+    .add({ reset: () => resetDefaults(gui) }, "reset")
+    .name("🔄 Reset to Defaults");
 
   return gui;
 }

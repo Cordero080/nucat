@@ -41,7 +41,11 @@ export function createInstancedMesh() {
 
   // Create instanced mesh with sampled vertex count
   const instanceCount = sampledVertexIndices.length;
-  const mesh = new THREE.InstancedMesh(currentGeometry, material, instanceCount);
+  const mesh = new THREE.InstancedMesh(
+    currentGeometry,
+    material,
+    instanceCount
+  );
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
   // Initialize all instances with identity matrices

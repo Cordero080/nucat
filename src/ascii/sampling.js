@@ -48,7 +48,8 @@ export function sampleSkeletonBones() {
       const pointsPerBone = 20;
 
       for (let i = 0; i <= pointsPerBone; i++) {
-        if (sampledVertexIndices.length >= CONFIG.defaults.maxCharacters) return;
+        if (sampledVertexIndices.length >= CONFIG.defaults.maxCharacters)
+          return;
 
         const t = i / pointsPerBone;
         pushSampledVertex({
