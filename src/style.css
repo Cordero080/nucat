@@ -1,0 +1,110 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000000; /* CHANGE THIS COLOR */
+    font-family: 'Courier New', monospace;
+}
+
+/* Canvas container - fills entire viewport */
+#canvas-container {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+#canvas-container canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Loading indicator styles */
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #0a0a0f;
+    z-index: 1000;
+    color: #00ffff;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+#loading.hidden {
+    display: none;
+}
+
+/* Animated loader spinner */
+.loader {
+    width: 60px;
+    height: 60px;
+    border: 3px solid transparent;
+    border-top-color: #00ffff;
+    border-right-color: #ff00ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   DAT.GUI PANEL STYLING - EDIT THESE TO CHANGE THE CONTROL PANEL LOOK
+   ========================================================================== */
+.dg.ac {
+    z-index: 100;
+}
+
+.dg.main {
+    background-color: rgba(10, 10, 15, 0.9);
+}
+
+.dg .cr.function:hover,
+.dg .cr.boolean:hover {
+    background-color: rgba(0, 255, 255, 0.1);
+}
+
+/* Error message styling */
+.error-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 100, 0.2);
+    border: 2px solid #ff0066;
+    padding: 30px 50px;
+    color: #ff0066;
+    text-align: center;
+    border-radius: 5px;
+    z-index: 1001;
+    max-width: 80%;
+}
+
+.error-message h2 {
+    margin-bottom: 15px;
+    color: #ff00ff;
+}
+
+.error-message p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
