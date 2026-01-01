@@ -88,6 +88,7 @@ export function initGUI() {
   // Character Effects folder
   const effectsFolder = gui.addFolder("✨ Character Effects");
 
+  // Manual effect type selection at top
   effectsFolder
     .add(params, "effectType", [
       "none",
@@ -100,22 +101,16 @@ export function initGUI() {
     ])
     .name("Effect Type")
     .onChange(() => {
-      // Reset effects when switching
-      if (params.effectType !== "disperse") {
-        params.disperseAmount = 0;
-        params._disperseTarget = 0;
-      }
-      if (params.effectType !== "spiralFlow") {
-        params.spiralFlowProgress = 0;
-        params._spiralFlowActive = false;
-      }
+      // Reset auto-triggers when manually switching
+      params._disperseTarget = params.effectType === "disperse" ? 1 : 0;
+      params._spiralFlowActive = params.effectType === "spiralFlow";
     });
 
-  effectsFolder.add(params, "effectIntensity", 0, 50, 1).name("Intensity");
+  effectsFolder.open();
 
-  effectsFolder.add(params, "effectSpeed", 0.1, 5, 0.1).name("Speed");
+  // Quick Actions folder - auto-trigger buttons
+  const actionsFolder = gui.addFolder("⚡ Quick Actions");
 
-  // Disperse controls
   const disperseObj = {
     disperse: () => {
       params._disperseTarget = 1;
@@ -125,28 +120,33 @@ export function initGUI() {
     },
   };
 
-  effectsFolder.add(disperseObj, "disperse").name("💥 Disperse!");
-  effectsFolder.add(disperseObj, "return").name("🔄 Return");
+  actionsFolder.add(disperseObj, "disperse").name("💥 Disperse!");
+  actionsFolder.add(disperseObj, "return").name("🔄 Return");
 
-  // Spiral Flow controls
   const spiralFlowObj = {
     play: () => {
-      params.effectType = "spiralFlow";
-      params.spiralFlowProgress = 0;
       params._spiralFlowActive = true;
+      params.spiralFlowProgress = 0;
     },
     stop: () => {
       params._spiralFlowActive = false;
-      params.spiralFlowProgress = 0;
     },
   };
 
-  effectsFolder.add(spiralFlowObj, "play").name("🌀 Spiral Flow!");
-  effectsFolder.add(spiralFlowObj, "stop").name("⏹ Stop");
-  effectsFolder.add(params, "spiralFlowSpeed", 0.1, 3, 0.1).name("Flow Speed");
-  effectsFolder.add(params, "spiralFlowWaves", 1, 10, 1).name("Wave Groups");
+  actionsFolder.add(spiralFlowObj, "play").name("🌀 Spiral Flow!");
+  actionsFolder.add(spiralFlowObj, "stop").name("⏹ Stop");
 
-  effectsFolder.open();
+  actionsFolder.open();
+
+  // Effect Parameters folder
+  const effectParamsFolder = gui.addFolder("🎛 Effect Parameters");
+
+  effectParamsFolder.add(params, "effectIntensity", 0, 50, 1).name("Intensity");
+  effectParamsFolder.add(params, "effectSpeed", 0.1, 5, 0.1).name("Effect Speed");
+  effectParamsFolder.add(params, "spiralFlowSpeed", 0.1, 3, 0.1).name("Flow Speed");
+  effectParamsFolder.add(params, "spiralFlowWaves", 1, 10, 1).name("Wave Groups");
+
+  effectParamsFolder.open();
 
   // Bloom settings folder
   const bloomFolder = gui.addFolder("Bloom Effect");

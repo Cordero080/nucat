@@ -100,19 +100,15 @@ function animate() {
   // Update effect time
   updateEffectTime(delta);
 
-  // Animate disperse effect
-  if (params.effectType === "disperse") {
-    const disperseTarget = 1;
-    params.disperseAmount += (disperseTarget - params.disperseAmount) * 0.02;
-  } else {
-    params.disperseAmount += (0 - params.disperseAmount) * 0.05;
-  }
+  // Animate disperse effect (works with button OR effectType)
+  const disperseTarget = params._disperseTarget ?? (params.effectType === "disperse" ? 1 : 0);
+  params.disperseAmount += (disperseTarget - params.disperseAmount) * 0.02 * params.effectSpeed;
 
   // Animate spiral flow effect
-  if (params.effectType === "spiralFlow") {
+  if (params._spiralFlowActive || params.effectType === "spiralFlow") {
     params.spiralFlowProgress += delta * params.spiralFlowSpeed;
-  } else {
-    params.spiralFlowProgress = 0;
+  } else if (params.effectType !== "spiralFlow") {
+    params.spiralFlowProgress *= 0.95; // Smooth fade out
   }
 
   // Update ASCII positions

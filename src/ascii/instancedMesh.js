@@ -227,52 +227,55 @@ function easeInOutCubic(t) {
  */
 function applySpiralFlowEffect(instanceIndex, position, time) {
   const { spiralFlowProgress, effectIntensity, spiralFlowWaves } = params;
-  
+
   if (spiralFlowProgress <= 0) return;
-  
+
   const center = modelCenter || { x: 0, y: 50, z: 0 };
-  
+
   // Characters at top flow out first, then middle, then bottom
   const normalizedY = (position.y - center.y + 100) / 200;
   const waveIndex = Math.floor(normalizedY * spiralFlowWaves);
   const wavePhase = waveIndex / spiralFlowWaves;
-  
+
   // Add randomness for organic feel
-  const randomOffset = (instanceIndex % 100) / 100 * 0.3;
-  
+  const randomOffset = ((instanceIndex % 100) / 100) * 0.3;
+
   // Calculate when this character should start moving
   const charStartTime = wavePhase * 0.5 + randomOffset * 0.2;
   const charEndTime = charStartTime + 0.5;
-  
+
   // Progress for this character
   let charProgress = 0;
   if (spiralFlowProgress > charStartTime) {
     if (spiralFlowProgress < charEndTime) {
-      charProgress = (spiralFlowProgress - charStartTime) / (charEndTime - charStartTime);
+      charProgress =
+        (spiralFlowProgress - charStartTime) / (charEndTime - charStartTime);
     } else if (spiralFlowProgress < charEndTime + 0.3) {
-      charProgress = 1 - ((spiralFlowProgress - charEndTime) / 0.3);
+      charProgress = 1 - (spiralFlowProgress - charEndTime) / 0.3;
     } else {
       charProgress = 0;
     }
   }
-  
+
   if (charProgress <= 0) return;
-  
+
   const smoothProgress = easeInOutCubic(Math.min(charProgress, 1));
-  
+
   const spiralRadius = effectIntensity * 3 * smoothProgress;
   const spiralHeight = effectIntensity * 2 * smoothProgress;
-  
+
   const angleOffset = instanceIndex * 0.01 + wavePhase * Math.PI * 2;
   const spiralAngle = time * 3 + angleOffset + smoothProgress * Math.PI * 4;
-  
+
   const dirX = position.x - center.x;
   const dirZ = position.z - center.z;
   const dirLen = Math.sqrt(dirX * dirX + dirZ * dirZ) || 1;
-  
+
   const outwardDist = effectIntensity * 2 * smoothProgress;
-  
-  position.x += (dirX / dirLen) * outwardDist + Math.cos(spiralAngle) * spiralRadius;
+
+  position.x +=
+    (dirX / dirLen) * outwardDist + Math.cos(spiralAngle) * spiralRadius;
   position.y += Math.sin(smoothProgress * Math.PI) * spiralHeight;
-  position.z += (dirZ / dirLen) * outwardDist + Math.sin(spiralAngle) * spiralRadius;
+  position.z +=
+    (dirZ / dirLen) * outwardDist + Math.sin(spiralAngle) * spiralRadius;
 }
