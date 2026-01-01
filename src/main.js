@@ -101,8 +101,10 @@ function animate() {
   updateEffectTime(delta);
 
   // Animate disperse effect (works with button OR effectType)
-  const disperseTarget = params._disperseTarget ?? (params.effectType === "disperse" ? 1 : 0);
-  params.disperseAmount += (disperseTarget - params.disperseAmount) * 0.02 * params.effectSpeed;
+  const disperseTarget =
+    params._disperseTarget ?? (params.effectType === "disperse" ? 1 : 0);
+  params.disperseAmount +=
+    (disperseTarget - params.disperseAmount) * 0.02 * params.effectSpeed;
 
   // Animate spiral flow effect
   if (params._spiralFlowActive || params.effectType === "spiralFlow") {

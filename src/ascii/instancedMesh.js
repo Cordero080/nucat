@@ -232,8 +232,9 @@ function applySpiralFlowEffect(instanceIndex, position, time) {
 
   const center = modelCenter || { x: 0, y: 50, z: 0 };
 
-  // Characters at top flow out first, then middle, then bottom
-  const normalizedY = (position.y - center.y + 100) / 200;
+  // Characters at BOTTOM flow out first, then middle, then top
+  // Use full Y range from 0 to 200
+  const normalizedY = (position.y + 50) / 250;
   const waveIndex = Math.floor(normalizedY * spiralFlowWaves);
   const wavePhase = waveIndex / spiralFlowWaves;
 

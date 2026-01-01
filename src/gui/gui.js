@@ -157,9 +157,15 @@ export function initGUI() {
   const effectParamsFolder = gui.addFolder("🎛 Effect Parameters");
 
   effectParamsFolder.add(params, "effectIntensity", 0, 50, 1).name("Intensity");
-  effectParamsFolder.add(params, "effectSpeed", 0.1, 5, 0.1).name("Effect Speed");
-  effectParamsFolder.add(params, "spiralFlowSpeed", 0.1, 3, 0.1).name("Flow Speed");
-  effectParamsFolder.add(params, "spiralFlowWaves", 1, 10, 1).name("Wave Groups");
+  effectParamsFolder
+    .add(params, "effectSpeed", 0.1, 5, 0.1)
+    .name("Effect Speed");
+  effectParamsFolder
+    .add(params, "spiralFlowSpeed", 0.1, 3, 0.1)
+    .name("Flow Speed");
+  effectParamsFolder
+    .add(params, "spiralFlowWaves", 1, 10, 1)
+    .name("Wave Groups");
 
   effectParamsFolder.open();
 
