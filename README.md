@@ -1,11 +1,28 @@
 # NUCAT ✦
 
-> *When your character wants to be a point cloud, you let them.*
+> _When your character wants to be a point cloud, you let them._
 
 ![Three.js](https://img.shields.io/badge/Three.js-r182-black?style=flat-square&logo=three.js)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 ![Vite](https://img.shields.io/badge/Served_Fresh-🔥-orange?style=flat-square)
 ![Brooklyn](https://img.shields.io/badge/Made_in-Brooklyn_NY-blue?style=flat-square)
+
+---
+
+## The Vibe
+
+<p align="center">
+  <img src="assets/nucat-blue.png" width="48%" alt="NUCAT in regular form"/>
+  <img src="assets/nucat-blue-disperse.png" width="48%" alt="Flow + dispersion kicking in"/>
+</p>
+<p align="center">
+  <img src="assets/nucat-blue-disperse-2.png" width="48%" alt="Full entropy mode"/>
+  <img src="assets/nucat-blue-disperse-3.png" width="48%" alt="Complete dispersion - the question remains"/>
+</p>
+
+<p align="center">
+  <sub>From form → flow → entropy → ❓</sub>
+</p>
 
 ---
 
@@ -21,13 +38,14 @@ Think of it as your character having an out-of-body experience. But make it aest
 
 ## ✦ Features
 
-- **🎭 Custom Character & Animation** — Original character design and Mixamo-rigged animation. Yes, I made this.
+- **🎭 Custom Character & Animation** — Original character design and Mixamo-rigged animation.
+
 - **⚡ Layered Effects System** — Stack multiple effects simultaneously. Hover + Wave + Spiral? Go crazy.
 - **🎨 Per-Effect Parameters** — Each effect remembers its own intensity and speed settings
 - **🌀 Six Unique Effects:**
   - `HOVER` — Gentle floating
   - `NOISE` — Chaotic jitter
-  - `WAVE` — Smooth oscillation  
+  - `WAVE` — Smooth oscillation
   - `SPIRAL` — Rotational motion
   - `DISPERSE` — Explosion scatter
   - `FLOW` — Cinematic spiral flow from bottom to top
@@ -39,14 +57,14 @@ Think of it as your character having an out-of-body experience. But make it aest
 
 ## 🛠️ Tech Stack
 
-| What | Why |
-|------|-----|
-| [Three.js](https://threejs.org/) | 3D rendering engine |
-| [InstancedMesh](https://threejs.org/docs/#api/en/objects/InstancedMesh) | GPU-efficient particle rendering |
-| [FBXLoader](https://threejs.org/docs/#examples/en/loaders/FBXLoader) | Loading rigged characters |
-| [UnrealBloomPass](https://threejs.org/docs/#examples/en/postprocessing/UnrealBloomPass) | That *chef's kiss* glow |
-| [lil-gui](https://lil-gui.georgealways.com/) | Lightweight controls |
-| [TextGeometry](https://threejs.org/docs/#examples/en/geometries/TextGeometry) | ASCII character meshes |
+| What                                                                                    | Why                              |
+| --------------------------------------------------------------------------------------- | -------------------------------- |
+| [Three.js](https://threejs.org/)                                                        | 3D rendering engine              |
+| [InstancedMesh](https://threejs.org/docs/#api/en/objects/InstancedMesh)                 | GPU-efficient particle rendering |
+| [FBXLoader](https://threejs.org/docs/#examples/en/loaders/FBXLoader)                    | Loading rigged characters        |
+| [UnrealBloomPass](https://threejs.org/docs/#examples/en/postprocessing/UnrealBloomPass) | That _chef's kiss_ glow          |
+| [lil-gui](https://lil-gui.georgealways.com/)                                            | Lightweight controls             |
+| [TextGeometry](https://threejs.org/docs/#examples/en/geometries/TextGeometry)           | ASCII character meshes           |
 
 ---
 
@@ -70,14 +88,14 @@ Open `http://localhost:3000` and watch your character transcend physical form.
 
 ## 🎮 Controls
 
-| Action | What It Does |
-|--------|--------------|
-| Click effect button | Toggle effect ON and focus it |
-| Click focused effect | Edit its parameters |
-| Click another active effect | Switch focus (params stay saved) |
-| Red stop icon | Kill that specific effect |
-| `RETURN` | Gradual fade back to default (the mystique way) |
-| `STOP ALL` | Immediate hard stop |
+| Action                      | What It Does                                    |
+| --------------------------- | ----------------------------------------------- |
+| Click effect button         | Toggle effect ON and focus it                   |
+| Click focused effect        | Edit its parameters                             |
+| Click another active effect | Switch focus (params stay saved)                |
+| Red stop icon               | Kill that specific effect                       |
+| `RETURN`                    | Gradual fade back to default (the mystique way) |
+| `STOP ALL`                  | Immediate hard stop                             |
 
 ---
 
@@ -105,17 +123,13 @@ nucat/
 
 ## 🎨 Credits
 
-**Character Design & Animation:** Me. I drew them. I rigged them. I made them dance.
+**Character Design & Animation:** I created the character design, I rigged them. Made them dance.
 
-**Code Architecture:** Collaboration between human vision and AI implementation.
-
-**Vibe:** Brooklyn, NY — where we make things weird but make them *work*.
 
 ---
 
 ## License
 
-Do whatever you want with it. Just don't be weird about it.
 
 MIT © 2026
 

@@ -397,10 +397,15 @@ export function initGUI() {
     .add(
       {
         return: () => {
-          // Just set the flag - animation loop handles gradual fade
+          // Set the flag - animation loop handles gradual fade
           params._isReturning = true;
           params._disperseTarget = 0;
-          // Don't deactivate effects here - let them fade naturally
+          // Immediately deactivate all effects and reset buttons
+          Object.keys(params.activeEffects).forEach((key) => {
+            params.activeEffects[key] = false;
+          });
+          params._focusedEffect = null;
+          resetAllButtons();
         },
       },
       "return"
