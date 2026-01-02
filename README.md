@@ -125,11 +125,9 @@ nucat/
 
 **Character Design & Animation:** I created the character design, I rigged them. Made them dance.
 
-
 ---
 
 ## License
-
 
 MIT © 2026
 
