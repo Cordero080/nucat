@@ -100,10 +100,31 @@ function animate() {
   // Update effect time
   updateEffectTime(delta);
 
-  // Handle gradual return - fade out effectIntensity
+  // Handle gradual return - fade out all effect intensities with mystique
   if (params._isReturning) {
-    params.effectIntensity *= 0.95;
-    if (params.effectIntensity < 0.1) {
+    const fadeRate = 0.992; // Very slow fade for mysterious effect
+
+    // Fade global intensity
+    params.effectIntensity *= fadeRate;
+
+    // Also fade all per-effect intensities
+    Object.keys(params.effectParams).forEach((effectName) => {
+      params.effectParams[effectName].intensity *= fadeRate;
+    });
+
+    // Fade disperse amount back to 0
+    params.disperseAmount *= fadeRate;
+
+    // Fade spiral flow progress
+    params.spiralFlowProgress *= fadeRate;
+
+    // Check if all effects have faded enough
+    const allFaded =
+      params.effectIntensity < 0.05 &&
+      params.disperseAmount < 0.05 &&
+      params.spiralFlowProgress < 0.05;
+
+    if (allFaded) {
       params.effectIntensity = 0;
       params.effectType = "none";
       // Turn off all active effects
@@ -111,7 +132,15 @@ function animate() {
         params.activeEffects[key] = false;
       });
       params._isReturning = false;
-      params.effectIntensity = 5.0; // Reset for next effect
+      params._spiralFlowActive = false;
+      params.disperseAmount = 0;
+      params.spiralFlowProgress = 0;
+      // Reset intensities for next use
+      params.effectIntensity = 5.0;
+      Object.keys(params.effectParams).forEach((effectName) => {
+        params.effectParams[effectName].intensity = 5.0;
+      });
+      params._focusedEffect = null;
       // Reset button colors
       if (params._resetAllButtons) {
         params._resetAllButtons();

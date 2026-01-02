@@ -68,19 +68,199 @@ html, body {
 }
 
 /* ==========================================================================
-   DAT.GUI PANEL STYLING - EDIT THESE TO CHANGE THE CONTROL PANEL LOOK
+   LIL-GUI PANEL STYLING - FUTURISTIC GLASSMORPHISM
    ========================================================================== */
-.dg.ac {
-    z-index: 100;
+
+/* Main panel container */
+.lil-gui {
+    --background-color: rgba(8, 12, 18, 0.85) !important;
+    --widget-color: rgba(30, 40, 55, 0.6) !important;
+    --focus-color: rgba(0, 200, 255, 0.15) !important;
+    --hover-color: rgba(0, 200, 255, 0.08) !important;
+    --font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    --font-size: 10px !important;
+    --input-font-size: 10px !important;
+    --name-width: 45% !important;
+    --slider-knob-width: 3px !important;
+    --slider-input-width: 25% !important;
+    --number-color: rgba(200, 220, 255, 0.9) !important;
+    --string-color: rgba(200, 220, 255, 0.9) !important;
+    --text-color: rgba(180, 200, 230, 0.85) !important;
+    --title-background-color: rgba(15, 20, 30, 0.9) !important;
+    --title-text-color: rgba(200, 220, 255, 0.95) !important;
+    
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(100, 140, 180, 0.12) !important;
+    border-radius: 8px !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.3px !important;
 }
 
-.dg.main {
-    background-color: rgba(10, 10, 15, 0.9);
+/* Folder titles */
+.lil-gui .title {
+    background: linear-gradient(180deg, rgba(25, 35, 50, 0.8) 0%, rgba(15, 22, 35, 0.9) 100%) !important;
+    border-bottom: 1px solid rgba(80, 120, 160, 0.15) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    padding: 8px 10px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: 1 !important;
 }
 
-.dg .cr.function:hover,
-.dg .cr.boolean:hover {
-    background-color: rgba(0, 255, 255, 0.1);
+.lil-gui .title:hover {
+    background: linear-gradient(180deg, rgba(30, 45, 65, 0.85) 0%, rgba(20, 30, 45, 0.9) 100%) !important;
+}
+
+/* Controllers (rows) */
+.lil-gui .controller {
+    border-bottom: 1px solid rgba(60, 90, 120, 0.08) !important;
+    padding: 4px 8px !important;
+    min-height: 26px !important;
+}
+
+.lil-gui .controller:hover {
+    background: rgba(0, 180, 255, 0.04) !important;
+}
+
+/* Property names */
+.lil-gui .controller .property-name {
+    color: rgba(150, 180, 210, 0.8) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
+    font-size: 9px !important;
+    font-weight: 400 !important;
+}
+
+/* Sliders */
+.lil-gui .slider {
+    background: rgba(20, 30, 45, 0.5) !important;
+    border-radius: 2px !important;
+    height: 4px !important;
+    border: 1px solid rgba(80, 120, 160, 0.2) !important;
+}
+
+.lil-gui .slider > .fill {
+    background: linear-gradient(90deg, rgba(0, 200, 255, 0.7), rgba(0, 180, 255, 0.9)) !important;
+    border-radius: 2px !important;
+}
+
+/* Number inputs */
+.lil-gui input[type="number"],
+.lil-gui input[type="text"] {
+    background: rgba(15, 22, 35, 0.6) !important;
+    border: 1px solid rgba(80, 120, 160, 0.2) !important;
+    border-radius: 3px !important;
+    color: rgba(200, 220, 255, 0.9) !important;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace !important;
+    font-size: 10px !important;
+}
+
+.lil-gui input[type="number"]:focus,
+.lil-gui input[type="text"]:focus {
+    border-color: rgba(0, 200, 255, 0.5) !important;
+    outline: none !important;
+    box-shadow: 0 0 8px rgba(0, 200, 255, 0.15) !important;
+}
+
+/* Select dropdowns */
+.lil-gui select {
+    background: rgba(15, 22, 35, 0.6) !important;
+    border: 1px solid rgba(80, 120, 160, 0.2) !important;
+    border-radius: 3px !important;
+    color: rgba(200, 220, 255, 0.9) !important;
+    font-size: 10px !important;
+    padding: 3px 6px !important;
+}
+
+.lil-gui select:focus {
+    border-color: rgba(0, 200, 255, 0.5) !important;
+    outline: none !important;
+}
+
+/* Color picker */
+.lil-gui .controller.color .display {
+    border-radius: 3px !important;
+    border: 1px solid rgba(80, 120, 160, 0.3) !important;
+}
+
+/* Function buttons */
+.lil-gui .controller.function .property-name {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 6px 8px !important;
+    font-weight: 500 !important;
+}
+
+.lil-gui .controller.function:hover {
+    background: rgba(0, 200, 255, 0.08) !important;
+}
+
+/* Checkboxes */
+.lil-gui input[type="checkbox"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    width: 14px !important;
+    height: 14px !important;
+    background: rgba(15, 22, 35, 0.6) !important;
+    border: 1px solid rgba(80, 120, 160, 0.3) !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+}
+
+.lil-gui input[type="checkbox"]:checked {
+    background: rgba(0, 200, 255, 0.6) !important;
+    border-color: rgba(0, 200, 255, 0.8) !important;
+}
+
+.lil-gui input[type="checkbox"]:checked::after {
+    content: '✓' !important;
+    display: block !important;
+    color: white !important;
+    font-size: 10px !important;
+    text-align: center !important;
+    line-height: 12px !important;
+}
+
+/* Scrollbar styling */
+.lil-gui::-webkit-scrollbar {
+    width: 4px !important;
+}
+
+.lil-gui::-webkit-scrollbar-track {
+    background: rgba(10, 15, 25, 0.5) !important;
+}
+
+.lil-gui::-webkit-scrollbar-thumb {
+    background: rgba(80, 120, 160, 0.3) !important;
+    border-radius: 2px !important;
+}
+
+.lil-gui::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 150, 200, 0.4) !important;
+}
+
+/* Nested folders */
+.lil-gui .lil-gui {
+    border: none !important;
+    border-left: 1px solid rgba(80, 120, 160, 0.1) !important;
+    margin-left: 4px !important;
+    box-shadow: none !important;
+}
+
+/* Stop button hover */
+.stop-btn:hover {
+    background: rgba(255, 60, 60, 0.25) !important;
+    border-color: rgba(255, 60, 60, 0.6) !important;
 }
 
 /* Error message styling */

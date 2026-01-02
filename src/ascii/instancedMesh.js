@@ -179,61 +179,71 @@ export function updateASCIIPositions() {
 
 /**
  * Apply visual effects to character position - supports layering multiple effects
+ * Each effect uses its own stored parameters
  */
 function applyEffects(instanceIndex, position) {
-  const { activeEffects, effectIntensity, effectSpeed, disperseAmount } =
-    params;
+  const { activeEffects, effectParams, disperseAmount } = params;
 
   // Check if any effects are active
   const hasActiveEffect = Object.values(activeEffects).some((v) => v);
   if (!hasActiveEffect && params.effectType === "none") return;
 
-  const time = effectTime * effectSpeed;
   const phase = instanceIndex * 0.1;
 
-  // Apply hover effect
+  // Apply hover effect with its own params
   if (activeEffects.hover || params.effectType === "hover") {
-    position.x += Math.sin(time * 2 + phase) * effectIntensity * 0.5;
-    position.y += Math.sin(time * 3 + phase * 1.3) * effectIntensity * 0.3;
-    position.z += Math.cos(time * 2.5 + phase * 0.7) * effectIntensity * 0.4;
+    const p = effectParams.hover;
+    const time = effectTime * p.speed;
+    position.x += Math.sin(time * 2 + phase) * p.intensity * 0.5;
+    position.y += Math.sin(time * 3 + phase * 1.3) * p.intensity * 0.3;
+    position.z += Math.cos(time * 2.5 + phase * 0.7) * p.intensity * 0.4;
   }
 
-  // Apply disperse effect
+  // Apply disperse effect with its own params
   if (activeEffects.disperse || params.effectType === "disperse") {
+    const p = effectParams.disperse;
     if (disperseDirections[instanceIndex]) {
       const dir = disperseDirections[instanceIndex];
-      const distance = disperseAmount * effectIntensity * 10;
+      const distance = disperseAmount * p.intensity * 10;
       position.x += dir.x * distance;
       position.y += dir.y * distance;
       position.z += dir.z * distance;
     }
   }
 
-  // Apply noise effect
+  // Apply noise effect with its own params
   if (activeEffects.noise || params.effectType === "noise") {
-    const noiseScale = effectIntensity * 0.5;
+    const p = effectParams.noise;
+    const time = effectTime * p.speed;
+    const noiseScale = p.intensity * 0.5;
     position.x += Math.sin(time * 10 + instanceIndex * 100) * noiseScale;
     position.y += Math.cos(time * 12 + instanceIndex * 73) * noiseScale;
     position.z += Math.sin(time * 8 + instanceIndex * 47) * noiseScale;
   }
 
-  // Apply wave effect
+  // Apply wave effect with its own params
   if (activeEffects.wave || params.effectType === "wave") {
-    const waveOffset = Math.sin(time * 2 + position.y * 0.05) * effectIntensity;
+    const p = effectParams.wave;
+    const time = effectTime * p.speed;
+    const waveOffset = Math.sin(time * 2 + position.y * 0.05) * p.intensity;
     position.x += waveOffset;
   }
 
-  // Apply spiral effect
+  // Apply spiral effect with its own params
   if (activeEffects.spiral || params.effectType === "spiral") {
+    const p = effectParams.spiral;
+    const time = effectTime * p.speed;
     const angle = time * 2 + phase;
-    const radius = effectIntensity * 0.5;
+    const radius = p.intensity * 0.5;
     position.x += Math.cos(angle) * radius;
     position.z += Math.sin(angle) * radius;
   }
 
-  // Apply spiralFlow effect
+  // Apply spiralFlow effect with its own params
   if (activeEffects.spiralFlow || params.effectType === "spiralFlow") {
-    applySpiralFlowEffect(instanceIndex, position, time);
+    const p = effectParams.spiralFlow;
+    const time = effectTime * p.speed;
+    applySpiralFlowEffect(instanceIndex, position, time, p);
   }
 }
 
@@ -244,18 +254,19 @@ function easeInOutCubic(t) {
 /**
  * Spiral Flow Effect - Characters flow out in waves, spiral around, return
  */
-function applySpiralFlowEffect(instanceIndex, position, time) {
-  const { spiralFlowProgress, effectIntensity, spiralFlowWaves } = params;
+function applySpiralFlowEffect(instanceIndex, position, time, effectParam) {
+  const { spiralFlowProgress } = params;
+  const intensity = effectParam.intensity;
+  const waves = effectParam.waves;
 
   if (spiralFlowProgress <= 0) return;
 
   const center = modelCenter || { x: 0, y: 50, z: 0 };
 
   // Characters at BOTTOM flow out first, then middle, then top
-  // Use full Y range from 0 to 200
   const normalizedY = (position.y + 50) / 250;
-  const waveIndex = Math.floor(normalizedY * spiralFlowWaves);
-  const wavePhase = waveIndex / spiralFlowWaves;
+  const waveIndex = Math.floor(normalizedY * waves);
+  const wavePhase = waveIndex / waves;
 
   // Add randomness for organic feel
   const randomOffset = ((instanceIndex % 100) / 100) * 0.3;
@@ -281,8 +292,8 @@ function applySpiralFlowEffect(instanceIndex, position, time) {
 
   const smoothProgress = easeInOutCubic(Math.min(charProgress, 1));
 
-  const spiralRadius = effectIntensity * 3 * smoothProgress;
-  const spiralHeight = effectIntensity * 2 * smoothProgress;
+  const spiralRadius = intensity * 3 * smoothProgress;
+  const spiralHeight = intensity * 2 * smoothProgress;
 
   const angleOffset = instanceIndex * 0.01 + wavePhase * Math.PI * 2;
   const spiralAngle = time * 3 + angleOffset + smoothProgress * Math.PI * 4;
@@ -291,7 +302,7 @@ function applySpiralFlowEffect(instanceIndex, position, time) {
   const dirZ = position.z - center.z;
   const dirLen = Math.sqrt(dirX * dirX + dirZ * dirZ) || 1;
 
-  const outwardDist = effectIntensity * 2 * smoothProgress;
+  const outwardDist = intensity * 2 * smoothProgress;
 
   position.x +=
     (dirX / dirLen) * outwardDist + Math.cos(spiralAngle) * spiralRadius;

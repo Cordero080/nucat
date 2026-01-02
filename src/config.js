@@ -112,7 +112,7 @@ export const params = {
   bloomRadius: CONFIG.defaults.bloomRadius,
   bloomThreshold: CONFIG.defaults.bloomThreshold,
 
-  // Character effects - now supports layering multiple effects
+  // Character effects - supports layering multiple effects
   effectType: "none", // Legacy - kept for dropdown
   activeEffects: {
     hover: false,
@@ -122,17 +122,31 @@ export const params = {
     disperse: false,
     spiralFlow: false,
   },
-  effectIntensity: 5.0, // How far characters move
-  effectSpeed: 1.0, // Speed of the effect
-  disperseAmount: 0.0, // 0 = home, 1 = fully dispersed (animated)
-  _disperseTarget: 0, // Internal: target for disperse animation
+  // Currently focused effect (for parameter editing)
+  _focusedEffect: null,
+
+  // Per-effect parameters - each effect stores its own settings
+  effectParams: {
+    hover: { intensity: 5.0, speed: 1.0 },
+    noise: { intensity: 5.0, speed: 1.0 },
+    wave: { intensity: 5.0, speed: 1.0 },
+    spiral: { intensity: 5.0, speed: 1.0 },
+    disperse: { intensity: 5.0, speed: 1.0 },
+    spiralFlow: { intensity: 5.0, speed: 1.0, flowSpeed: 1.0, waves: 5 },
+  },
+
+  // Current editing values (bound to GUI)
+  effectIntensity: 5.0,
+  effectSpeed: 1.0,
+  disperseAmount: 0.0,
+  _disperseTarget: 0,
 
   // Spiral Flow effect
-  spiralFlowProgress: 0.0, // 0 = all home, 1 = full animation cycle
-  spiralFlowSpeed: 1.0, // Speed of the spiral flow
-  spiralFlowWaves: 5, // Number of wave groups
-  _spiralFlowActive: false, // Is animation running
+  spiralFlowProgress: 0.0,
+  spiralFlowSpeed: 1.0,
+  spiralFlowWaves: 5,
+  _spiralFlowActive: false,
 
   // Return control
-  _isReturning: false, // Gradually fade out all effects
+  _isReturning: false,
 };
