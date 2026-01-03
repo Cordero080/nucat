@@ -23,6 +23,10 @@ import {
   modelCenter,
 } from "../state.js";
 import { getSkinnedVertexPosition } from "./skinning.js";
+import {
+  isModelIncubated,
+  reattachInstancedMesh,
+} from "../core/holographicCube.js";
 
 /**
  * Create the InstancedMesh for efficient multi-character rendering
@@ -30,7 +34,10 @@ import { getSkinnedVertexPosition } from "./skinning.js";
 export function createInstancedMesh() {
   // Remove existing instanced mesh if present
   if (instancedMesh) {
-    scene.remove(instancedMesh);
+    // Remove from wherever it currently is (scene or cubeGroup)
+    if (instancedMesh.parent) {
+      instancedMesh.parent.remove(instancedMesh);
+    }
     instancedMesh.dispose();
   }
 
@@ -59,8 +66,15 @@ export function createInstancedMesh() {
   }
 
   mesh.instanceMatrix.needsUpdate = true;
+
+  // Add to scene first
   scene.add(mesh);
   setInstancedMesh(mesh);
+
+  // If incubated, reattach to the cube group
+  if (isModelIncubated()) {
+    reattachInstancedMesh(mesh);
+  }
 
   // Generate random disperse directions for each character
   const directions = [];

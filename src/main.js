@@ -21,6 +21,10 @@ import { initScene, initCamera, initRenderer } from "./core/scene.js";
 import { initLighting } from "./core/lighting.js";
 import { initControls } from "./core/controls.js";
 import { initPostProcessing } from "./core/postprocessing.js";
+import {
+  initHolographicCube,
+  updateHolographicCube,
+} from "./core/holographicCube.js";
 
 // Loaders
 import { loadFont } from "./loaders/fontLoader.js";
@@ -32,6 +36,7 @@ import {
   updateASCIIPositions,
 } from "./ascii/index.js";
 import { processMystiqueFade } from "./ascii/mystiqueFade.js";
+import { processChaosMix } from "./ascii/chaosMix.js";
 
 // GUI
 import { initGUI } from "./gui/gui.js";
@@ -63,6 +68,10 @@ async function init() {
 
     // Initialize ASCII point cloud
     initializeASCIIPointCloud();
+
+    // Initialize holographic cube (incubation chamber)
+    // Size is calculated automatically from the FBX model bounds
+    initHolographicCube();
 
     // Auto-frame camera
     autoFrameCamera(fbx);
@@ -104,6 +113,9 @@ function animate() {
   // Handle gradual return with mystique fade
   processMystiqueFade();
 
+  // Process chaos mix evolution
+  processChaosMix(delta);
+
   // Animate disperse effect (works with button OR activeEffects)
   const disperseActive =
     params.activeEffects?.disperse || params.effectType === "disperse";
@@ -125,6 +137,9 @@ function animate() {
 
   // Update ASCII positions
   updateASCIIPositions();
+
+  // Update holographic cube (when incubated)
+  updateHolographicCube(delta, clock.elapsedTime);
 
   // Update controls and render
   controls.update();

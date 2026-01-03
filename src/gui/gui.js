@@ -13,6 +13,20 @@ import {
   onBackgroundChange,
   resetDefaults,
 } from "./handlers.js";
+import {
+  initChaosMix,
+  startChaosMix,
+  stopChaosMix,
+  isChaosMixRunning,
+} from "../ascii/chaosMix.js";
+import {
+  toggleIncubation,
+  isModelIncubated,
+  setOnIncubateChange,
+  toggleIncubationMode,
+  getIncubationMode,
+  setOnModeChange,
+} from "../core/holographicCube.js";
 
 /**
  * Initialize lil-gui controls
@@ -432,8 +446,170 @@ export function initGUI() {
     )
     .name("STOP ALL");
 
+  // CHAOS MIX button - generative mathematical evolution
+  let chaosMixBtn = null;
+  let chaosMixEl = null;
+
+  const chaosAction = {
+    chaosMix: () => {
+      if (isChaosMixRunning()) {
+        stopChaosMix();
+        if (chaosMixEl) {
+          chaosMixEl.style.background = "";
+          chaosMixEl.style.animation = "";
+        }
+      } else {
+        // Stop any returning state
+        params._isReturning = false;
+        startChaosMix();
+        if (chaosMixEl) {
+          chaosMixEl.style.background =
+            "linear-gradient(90deg, #ff00ff, #00ffff, #ff00ff)";
+          chaosMixEl.style.backgroundSize = "200% 100%";
+          chaosMixEl.style.animation = "chaosGradient 2s linear infinite";
+        }
+      }
+    },
+  };
+
+  chaosMixBtn = actionsFolder.add(chaosAction, "chaosMix").name("🌀 CHAOS MIX");
+
+  // Style the chaos button
+  setTimeout(() => {
+    chaosMixEl = chaosMixBtn.domElement.closest(".controller");
+    if (chaosMixEl) {
+      chaosMixEl.style.borderLeft = "3px solid #ff00ff";
+      chaosMixEl.style.fontWeight = "600";
+      chaosMixEl.style.letterSpacing = "1px";
+    }
+  }, 0);
+
+  // Initialize chaos mix with callbacks
+  initChaosMix(
+    // Effect change callback - update button visuals
+    (effectName, action) => {
+      if (action === "reset") {
+        resetAllButtons();
+        if (chaosMixEl) {
+          chaosMixEl.style.background = "";
+          chaosMixEl.style.animation = "";
+        }
+      } else if (action === "activate") {
+        updateButtonStyle(effectName, "active-focused");
+        // Update other active effects to dimmed
+        Object.keys(params.activeEffects).forEach((name) => {
+          if (params.activeEffects[name] && name !== effectName) {
+            updateButtonStyle(name, "active-dimmed");
+          }
+        });
+        updateParamsBorder(effectName);
+      } else if (action === "deactivate") {
+        updateButtonStyle(effectName, "inactive");
+      }
+    },
+    // Color change callback - also updates bloom
+    (newColor) => {
+      onColorChange();
+      onBloomChange(); // Update bloom in real-time
+      gui.controllersRecursive().forEach((c) => {
+        if (
+          c.property === "color" ||
+          c.property === "bloomStrength" ||
+          c.property === "bloomRadius"
+        ) {
+          c.updateDisplay();
+        }
+      });
+    },
+    // Params change callback - sync GUI sliders with evolving params
+    () => {
+      gui.controllersRecursive().forEach((c) => {
+        if (
+          c.property === "effectIntensity" ||
+          c.property === "effectSpeed" ||
+          c.property === "bloomStrength" ||
+          c.property === "bloomRadius"
+        ) {
+          c.updateDisplay();
+        }
+      });
+    }
+  );
+
   // Store resetAllButtons for use in main.js
   params._resetAllButtons = resetAllButtons;
+
+  // INCUBATE button - holographic cube display
+  let incubateBtn = null;
+  let incubateEl = null;
+
+  const incubateAction = {
+    incubate: () => {
+      toggleIncubation();
+    },
+  };
+
+  incubateBtn = actionsFolder
+    .add(incubateAction, "incubate")
+    .name("🔮 INCUBATE");
+
+  // Style the incubate button
+  setTimeout(() => {
+    incubateEl = incubateBtn.domElement.closest(".controller");
+    if (incubateEl) {
+      incubateEl.style.borderLeft = "3px solid #00ffff";
+      incubateEl.style.fontWeight = "600";
+      incubateEl.style.letterSpacing = "1px";
+    }
+  }, 0);
+
+  // Update button when incubation state changes
+  setOnIncubateChange((isIncubated) => {
+    if (incubateEl) {
+      if (isIncubated) {
+        incubateEl.style.background =
+          "linear-gradient(90deg, #00ffff, #ff00ff, #00ffff)";
+        incubateEl.style.backgroundSize = "200% 100%";
+        incubateEl.style.animation = "chaosGradient 3s linear infinite";
+        incubateBtn.name("🔮 RELEASE");
+      } else {
+        incubateEl.style.background = "";
+        incubateEl.style.animation = "";
+        incubateBtn.name("🔮 INCUBATE");
+      }
+    }
+  });
+
+  // CUBE MODE toggle button - switch between holographic and rubix
+  let modeBtn = null;
+  let modeEl = null;
+
+  const modeAction = {
+    toggleMode: () => {
+      const newMode = toggleIncubationMode();
+      modeBtn.name(
+        newMode === "holographic" ? "🎲 RUBIX MODE" : "🔮 HOLO MODE"
+      );
+    },
+  };
+
+  modeBtn = actionsFolder.add(modeAction, "toggleMode").name("🎲 RUBIX MODE");
+
+  // Style the mode button
+  setTimeout(() => {
+    modeEl = modeBtn.domElement.closest(".controller");
+    if (modeEl) {
+      modeEl.style.borderLeft = "3px solid #ff00ff";
+      modeEl.style.fontWeight = "600";
+    }
+  }, 0);
+
+  // Update button when mode changes externally
+  setOnModeChange((mode) => {
+    if (modeBtn) {
+      modeBtn.name(mode === "holographic" ? "🎲 RUBIX MODE" : "🔮 HOLO MODE");
+    }
+  });
 
   actionsFolder.open();
 

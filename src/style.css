@@ -13,6 +13,12 @@ html, body {
     font-family: 'Courier New', monospace;
 }
 
+/* Chaos Mix animation */
+@keyframes chaosGradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
 /* Canvas container - fills entire viewport */
 #canvas-container {
     width: 100vw;
