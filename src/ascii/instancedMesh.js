@@ -27,6 +27,12 @@ import {
   isModelIncubated,
   reattachInstancedMesh,
 } from "../core/holographicCube.js";
+import {
+  handPresent,
+  handPosition,
+  gestureState,
+  getHandInfluence,
+} from "../input/handTracking.js";
 
 /**
  * Create the InstancedMesh for efficient multi-character rendering
@@ -198,6 +204,11 @@ export function updateASCIIPositions() {
 function applyEffects(instanceIndex, position) {
   const { activeEffects, effectParams, disperseAmount } = params;
 
+  // Apply hand tracking influence first (if enabled)
+  if (params.handTrackingEnabled && handPresent) {
+    applyHandInfluence(instanceIndex, position);
+  }
+
   // Check if any effects are active
   const hasActiveEffect = Object.values(activeEffects).some((v) => v);
   if (!hasActiveEffect && params.effectType === "none") return;
@@ -323,4 +334,54 @@ function applySpiralFlowEffect(instanceIndex, position, time, effectParam) {
   position.y += Math.sin(smoothProgress * Math.PI) * spiralHeight;
   position.z +=
     (dirZ / dirLen) * outwardDist + Math.sin(spiralAngle) * spiralRadius;
+}
+
+/**
+ * Apply hand tracking influence to particle position
+ * Hand pushes nearby particles away (or attracts with pinch)
+ */
+function applyHandInfluence(instanceIndex, position) {
+  const { force, strength } = getHandInfluence(position);
+
+  if (strength === 0) return;
+
+  // Apply push/pull force
+  position.x += force.x * strength;
+  position.y += force.y * strength;
+  position.z += force.z * strength;
+}
+
+/**
+ * Process hand gestures and trigger corresponding effects
+ * Called from the main animation loop
+ */
+export function processHandGestures() {
+  if (!params.handTrackingEnabled || !handPresent) return;
+
+  // Fist → Disperse explosion
+  if (gestureState.isFist && !params.activeEffects.disperse) {
+    params.activeEffects.disperse = true;
+    params._disperseTarget = 1;
+    console.log("✊ Fist detected → Disperse!");
+  } else if (!gestureState.isFist && params._handTriggeredDisperse) {
+    // Release fist → stop disperse
+    params.activeEffects.disperse = false;
+    params._disperseTarget = 0;
+    params._handTriggeredDisperse = false;
+  }
+
+  if (gestureState.isFist) {
+    params._handTriggeredDisperse = true;
+  }
+
+  // Wave → Wave effect
+  if (gestureState.isWaving && !params.activeEffects.wave) {
+    params.activeEffects.wave = true;
+    params._handTriggeredWave = true;
+    console.log("👋 Wave detected → Wave effect!");
+  } else if (!gestureState.isWaving && params._handTriggeredWave) {
+    // Wave done → gradual fade
+    params.activeEffects.wave = false;
+    params._handTriggeredWave = false;
+  }
 }

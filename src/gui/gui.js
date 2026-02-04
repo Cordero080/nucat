@@ -28,6 +28,7 @@ import {
   getIncubationMode,
   setOnModeChange,
 } from "../core/holographicCube.js";
+import { toggleHandTracking, isHandTrackingActive } from "../input/handTracking.js";
 
 /**
  * Initialize lil-gui controls
@@ -698,6 +699,73 @@ export function initGUI() {
     .onChange(onBloomChange);
 
   bloomFolder.open();
+
+  // ═══════════════════════════════════════════════════════════════
+  // HAND TRACKING
+  // ═══════════════════════════════════════════════════════════════
+  const handFolder = gui.addFolder("🖐️ HAND TRACKING");
+
+  let handBtn = null;
+  let handBtnEl = null;
+
+  const handAction = {
+    toggle: async () => {
+      try {
+        const isActive = await toggleHandTracking();
+        params.handTrackingEnabled = isActive;
+
+        if (handBtnEl) {
+          if (isActive) {
+            handBtnEl.style.background =
+              "linear-gradient(90deg, #00ff66, #00ffff, #00ff66)";
+            handBtnEl.style.backgroundSize = "200% 100%";
+            handBtnEl.style.animation = "chaosGradient 2s linear infinite";
+            handBtn.name("🛑 STOP TRACKING");
+          } else {
+            handBtnEl.style.background = "";
+            handBtnEl.style.animation = "";
+            handBtn.name("🖐️ START TRACKING");
+          }
+        }
+      } catch (error) {
+        console.error("Hand tracking error:", error);
+        alert(
+          "Could not start hand tracking. Make sure you have a webcam and grant permission.",
+        );
+      }
+    },
+  };
+
+  handBtn = handFolder.add(handAction, "toggle").name("🖐️ START TRACKING");
+
+  // Style the hand tracking button
+  setTimeout(() => {
+    handBtnEl = handBtn.domElement.closest(".controller");
+    if (handBtnEl) {
+      handBtnEl.style.borderLeft = "3px solid #00ff66";
+      handBtnEl.style.fontWeight = "600";
+      handBtnEl.style.letterSpacing = "1px";
+    }
+  }, 0);
+
+  handFolder
+    .add(params, "handInfluenceRadius", 20, 200, 5)
+    .name("Influence Radius");
+
+  handFolder
+    .add(params, "handInfluenceStrength", 1, 50, 1)
+    .name("Push Strength");
+
+  handFolder.add(params, "handShowPreview").name("Show Preview").onChange((show) => {
+    const video = document.getElementById("hand-tracking-video");
+    const canvas = document.getElementById("hand-tracking-canvas");
+    const status = document.getElementById("hand-status");
+    if (video) video.style.display = show && isHandTrackingActive() ? "block" : "none";
+    if (canvas) canvas.style.display = show && isHandTrackingActive() ? "block" : "none";
+    if (status) status.style.display = show && isHandTrackingActive() ? "block" : "none";
+  });
+
+  handFolder.close();
 
   // Reset button
   gui

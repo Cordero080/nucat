@@ -37,6 +37,7 @@ import {
 } from "./ascii/index.js";
 import { processMystiqueFade } from "./ascii/mystiqueFade.js";
 import { processChaosMix } from "./ascii/chaosMix.js";
+import { processHandGestures } from "./ascii/instancedMesh.js";
 
 // GUI
 import { initGUI } from "./gui/gui.js";
@@ -115,6 +116,9 @@ function animate() {
 
   // Process chaos mix evolution
   processChaosMix(delta);
+
+  // Process hand gesture triggers
+  processHandGestures();
 
   // Animate disperse effect (works with button OR activeEffects)
   const disperseActive =

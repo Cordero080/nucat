@@ -156,4 +156,10 @@ export const params = {
 
   // Return control
   _isReturning: false,
+
+  // Hand tracking
+  handTrackingEnabled: false,
+  handInfluenceRadius: 80, // How far the hand affects particles
+  handInfluenceStrength: 15, // Push/pull force multiplier
+  handShowPreview: true, // Show webcam preview
 };
