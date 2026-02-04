@@ -11,17 +11,24 @@ import {
   setMixer,
   addSkinnedMesh,
   skinnedMeshes,
+  clearSkinnedMeshes,
+  clearSampledData,
+  fbxModel,
+  mixer,
+  instancedMesh,
 } from "../state.js";
 
 /**
  * Load the FBX model with Mixamo animation
  */
-export function loadFBXModel() {
+export function loadFBXModel(modelPath = null) {
+  const path = modelPath || CONFIG.model.path;
+  
   return new Promise((resolve, reject) => {
     const loader = new FBXLoader();
 
     loader.load(
-      CONFIG.model.path,
+      path,
       (fbx) => {
         console.log("FBX loaded:", fbx);
 
@@ -90,6 +97,49 @@ export function loadFBXModel() {
       }
     );
   });
+}
+
+/**
+ * Dispose of current model and clean up resources
+ */
+export function disposeCurrentModel() {
+  // Stop and dispose mixer
+  if (mixer) {
+    mixer.stopAllAction();
+    mixer.uncacheRoot(fbxModel);
+  }
+  
+  // Dispose instanced mesh
+  if (instancedMesh) {
+    if (instancedMesh.parent) {
+      instancedMesh.parent.remove(instancedMesh);
+    }
+    instancedMesh.geometry?.dispose();
+    instancedMesh.material?.dispose();
+  }
+  
+  // Dispose FBX model
+  if (fbxModel) {
+    scene.remove(fbxModel);
+    fbxModel.traverse((child) => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach(m => m.dispose());
+        } else {
+          child.material.dispose();
+        }
+      }
+    });
+  }
+  
+  // Clear state
+  clearSkinnedMeshes();
+  clearSampledData();
+  setFbxModel(null);
+  setMixer(null);
+  
+  console.log("🗑️ Previous model disposed");
 }
 
 /**

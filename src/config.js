@@ -78,6 +78,13 @@ export const CONFIG = {
     backgroundColor: 0x000000,
   },
 
+  // Available models
+  models: {
+    "Slow Qi": "./models/SLOW_QI.fbx",
+    "Green Smoke": "./models/green_smoke.fbx",
+    "Cat Fight": "./models/red_cat_fight.fbx",
+  },
+
   // Model settings
   model: {
     path: "./models/SLOW_QI.fbx",

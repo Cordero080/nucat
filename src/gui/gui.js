@@ -12,6 +12,7 @@ import {
   onBloomChange,
   onBackgroundChange,
   resetDefaults,
+  onModelChange,
 } from "./handlers.js";
 import {
   initChaosMix,
@@ -37,6 +38,24 @@ export function initGUI() {
   // Enable auto-scrolling when panel gets too tall
   gui.domElement.style.maxHeight = "90vh";
   gui.domElement.style.overflowY = "auto";
+
+  // ═══════════════════════════════════════════════════════════════
+  // MODEL SELECTOR
+  // ═══════════════════════════════════════════════════════════════
+  const modelFolder = gui.addFolder("MODEL");
+  
+  const modelOptions = Object.keys(CONFIG.models);
+  const modelSelection = { selected: "Slow Qi" };
+  
+  modelFolder
+    .add(modelSelection, "selected", modelOptions)
+    .name("Character")
+    .onChange((selectedKey) => {
+      const modelPath = CONFIG.models[selectedKey];
+      onModelChange(modelPath);
+    });
+  
+  modelFolder.open();
 
   // Character settings folder
   const charFolder = gui.addFolder("CHARACTER");

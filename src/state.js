@@ -108,6 +108,12 @@ export function clearSkinnedMeshes() {
   skinnedMeshes = [];
 }
 
+export function clearSampledData() {
+  sampledVertexIndices = [];
+  vertexWeights = [];
+  vertexBoneIndices = [];
+}
+
 export function setSampledVertexIndices(arr) {
   sampledVertexIndices = arr;
 }

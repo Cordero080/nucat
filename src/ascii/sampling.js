@@ -73,6 +73,7 @@ export function sampleSkeletonBones() {
 
 /**
  * Sample vertices, face centers, edge points, AND interior points from skinned meshes
+ * Adaptive sampling based on model size and geometry complexity
  */
 export function sampleVertices() {
   // Reset arrays
@@ -85,6 +86,21 @@ export function sampleVertices() {
   let totalEdgePoints = 0;
   let totalInteriorPoints = 0;
   let totalAdaptivePoints = 0;
+
+  // Calculate overall model bounds for adaptive sampling
+  let overallBounds = new THREE.Box3();
+  skinnedMeshes.forEach((mesh) => {
+    const meshBounds = new THREE.Box3().setFromObject(mesh);
+    overallBounds.union(meshBounds);
+  });
+  const modelSize = overallBounds.getSize(new THREE.Vector3());
+  const modelVolume = modelSize.x * modelSize.y * modelSize.z;
+  
+  // Target point density based on model size
+  // Larger models need more points to look filled
+  const targetPointDensity = Math.max(10000, Math.min(80000, modelVolume / 50));
+  console.log(`Model size: ${modelSize.x.toFixed(1)} x ${modelSize.y.toFixed(1)} x ${modelSize.z.toFixed(1)}`);
+  console.log(`Target point density: ${targetPointDensity.toFixed(0)}`);
 
   skinnedMeshes.forEach((mesh, meshIndex) => {
     const geometry = mesh.geometry;
@@ -99,6 +115,17 @@ export function sampleVertices() {
     console.log(
       `Mesh ${meshIndex} (${mesh.name}): ${vertexCount} total vertices`
     );
+
+    // Calculate mesh-specific bounds
+    const meshBounds = new THREE.Box3().setFromBufferAttribute(positionAttr);
+    const meshSize = meshBounds.getSize(new THREE.Vector3());
+    
+    // Adaptive sampling density based on vertex count vs target
+    // If model has few vertices, sample more densely
+    const adaptiveDensity = Math.max(1, Math.floor(vertexCount / (targetPointDensity / skinnedMeshes.length)));
+    const effectiveDensity = Math.min(adaptiveDensity, params.samplingDensity);
+    
+    console.log(`Mesh ${meshIndex}: using adaptive density ${effectiveDensity} (base: ${params.samplingDensity})`);
 
     // Helper to add a sample point with bone weights
     const addSample = (sample, boneIdx, boneWeight) => {
@@ -127,8 +154,8 @@ export function sampleVertices() {
       return v0.cross(v1).length() * 0.5;
     };
 
-    // Sample every Nth vertex based on sampling density
-    for (let i = 0; i < vertexCount; i += params.samplingDensity) {
+    // Sample every Nth vertex based on adaptive sampling density
+    for (let i = 0; i < vertexCount; i += effectiveDensity) {
       if (sampledVertexIndices.length >= CONFIG.defaults.maxCharacters) break;
       addSample(
         { meshIndex, vertexIndex: i, type: "vertex" },
@@ -157,6 +184,9 @@ export function sampleVertices() {
     // ADAPTIVE SAMPLING: Sample more points in larger triangles
     if (indexAttr) {
       const faceCount = indexAttr.count / 3;
+      
+      // Use adaptive density for face sampling too
+      const faceDensity = Math.max(1, effectiveDensity);
 
       // First pass: calculate average triangle area
       let totalArea = 0;
@@ -180,7 +210,7 @@ export function sampleVertices() {
         )}`
       );
 
-      for (let f = 0; f < faceCount; f += params.samplingDensity) {
+      for (let f = 0; f < faceCount; f += faceDensity) {
         if (sampledVertexIndices.length >= CONFIG.defaults.maxCharacters) break;
 
         const i0 = indexAttr.getX(f * 3);

@@ -51,9 +51,43 @@ let onModeChange = null;
 // ═══════════════════════════════════════════════════════════════
 
 /**
- * Initialize the holographic cube (call once at startup)
+ * Dispose of existing cube resources
+ */
+function disposeCube() {
+  if (cubeGroup) {
+    // Dispose all children
+    cubeGroup.traverse((child) => {
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach(m => m.dispose());
+        } else {
+          child.material.dispose();
+        }
+      }
+    });
+    scene.remove(cubeGroup);
+    cubeGroup = null;
+  }
+  
+  outerLayer = null;
+  middleLayer = null;
+  innerLayer = null;
+  edgeWireframe = null;
+  innerLight = null;
+  rubixPanels = [];
+  rubixEdges = null;
+  edgeMaterial = null;
+  middleMaterial = null;
+}
+
+/**
+ * Initialize the holographic cube (call once at startup or after model change)
  */
 export function initHolographicCube(options = {}) {
+  // Clean up existing cube if reinitializing
+  disposeCube();
+  
   // Calculate size from the actual FBX model bounds
   if (fbxModel) {
     const box = new THREE.Box3().setFromObject(fbxModel);
@@ -275,10 +309,15 @@ function createRubixPanels(size) {
   console.log("🎲 Rubix panels created:", rubixPanels.length);
 }
 
+let interactionSetup = false;
+
 /**
  * Setup mouse drag interaction for trackball rotation
  */
 function setupInteraction() {
+  if (interactionSetup) return; // Only setup once
+  interactionSetup = true;
+  
   const canvas = renderer.domElement;
 
   canvas.addEventListener("pointerdown", (e) => {
