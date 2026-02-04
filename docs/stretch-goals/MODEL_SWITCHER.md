@@ -17,21 +17,25 @@ Hot-swap FBX characters on the fly.
 ## 🚀 Future Ideas
 
 ### Animation Library
+
 - Load multiple animations per character
 - Crossfade between idle, dance, fight, etc.
 - Keyboard shortcuts (1-9) to trigger anims
 
 ### Character Customization
+
 - Color presets per character
 - Save/load character + effect combos
 - Random character button
 
 ### Multi-Character Mode
+
 - Two cats on screen at once
 - Synchronized or independent animations
 - Battle mode: effects fight each other
 
 ### Import Your Own
+
 - Drag & drop FBX upload
 - Auto-detect skinned mesh
 - Store in localStorage for persistence

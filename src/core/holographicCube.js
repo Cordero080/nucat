@@ -60,7 +60,7 @@ function disposeCube() {
       if (child.geometry) child.geometry.dispose();
       if (child.material) {
         if (Array.isArray(child.material)) {
-          child.material.forEach(m => m.dispose());
+          child.material.forEach((m) => m.dispose());
         } else {
           child.material.dispose();
         }
@@ -69,7 +69,7 @@ function disposeCube() {
     scene.remove(cubeGroup);
     cubeGroup = null;
   }
-  
+
   outerLayer = null;
   middleLayer = null;
   innerLayer = null;
@@ -87,7 +87,7 @@ function disposeCube() {
 export function initHolographicCube(options = {}) {
   // Clean up existing cube if reinitializing
   disposeCube();
-  
+
   // Calculate size from the actual FBX model bounds
   if (fbxModel) {
     const box = new THREE.Box3().setFromObject(fbxModel);
@@ -113,7 +113,7 @@ export function initHolographicCube(options = {}) {
   const outerGeom = new THREE.BoxGeometry(
     size * 1.02,
     size * 1.02,
-    size * 1.02
+    size * 1.02,
   );
   const outerMat = new THREE.MeshPhysicalMaterial({
     color: 0xff00ff,
@@ -149,7 +149,7 @@ export function initHolographicCube(options = {}) {
   const innerGeom = new THREE.BoxGeometry(
     size * 0.98,
     size * 0.98,
-    size * 0.98
+    size * 0.98,
   );
   const innerMat = new THREE.MeshPhysicalMaterial({
     color: 0xffff00,
@@ -293,7 +293,7 @@ function createRubixPanels(size) {
 
   // Rubix edge wireframe (slightly larger)
   const rubixEdgeGeom = new THREE.EdgesGeometry(
-    new THREE.BoxGeometry(size * 1.01, size * 1.01, size * 1.01)
+    new THREE.BoxGeometry(size * 1.01, size * 1.01, size * 1.01),
   );
   rubixEdges = new THREE.LineSegments(
     rubixEdgeGeom,
@@ -301,7 +301,7 @@ function createRubixPanels(size) {
       color: 0xff00ff,
       transparent: true,
       opacity: 0.8,
-    })
+    }),
   );
   rubixEdges.visible = false;
   cubeGroup.add(rubixEdges);
@@ -317,7 +317,7 @@ let interactionSetup = false;
 function setupInteraction() {
   if (interactionSetup) return; // Only setup once
   interactionSetup = true;
-  
+
   const canvas = renderer.domElement;
 
   canvas.addEventListener("pointerdown", (e) => {
@@ -386,12 +386,12 @@ export function incubate() {
     instancedMesh.position.set(
       -modelCenter.x,
       -modelCenter.y + yOffset,
-      -modelCenter.z
+      -modelCenter.z,
     );
 
     console.log(
       "🔮 InstancedMesh moved into cube, offset:",
-      instancedMesh.position
+      instancedMesh.position,
     );
   }
 
@@ -473,11 +473,11 @@ export function updateHolographicCube(delta, elapsedTime) {
     // Trackball rotation from user drag
     const rotX = new THREE.Quaternion().setFromAxisAngle(
       new THREE.Vector3(1, 0, 0),
-      -rotationSpeed.y
+      -rotationSpeed.y,
     );
     const rotY = new THREE.Quaternion().setFromAxisAngle(
       new THREE.Vector3(0, 1, 0),
-      rotationSpeed.x
+      rotationSpeed.x,
     );
     const rotation = new THREE.Quaternion().multiplyQuaternions(rotY, rotX);
     cubeGroup.quaternion.premultiply(rotation);
@@ -489,7 +489,7 @@ export function updateHolographicCube(delta, elapsedTime) {
     // Gentle auto-rotate on Y axis
     const autoRotY = new THREE.Quaternion().setFromAxisAngle(
       new THREE.Vector3(0, 1, 0),
-      delta * 0.3
+      delta * 0.3,
     );
     cubeGroup.quaternion.premultiply(autoRotY);
   }
@@ -675,7 +675,7 @@ export function reattachInstancedMesh(newMesh) {
   newMesh.position.set(
     -modelCenter.x,
     -modelCenter.y + yOffset,
-    -modelCenter.z
+    -modelCenter.z,
   );
 
   console.log("🔮 Reattached instancedMesh to cube group");

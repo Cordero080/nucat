@@ -43,10 +43,10 @@ export function initGUI() {
   // MODEL SELECTOR
   // ═══════════════════════════════════════════════════════════════
   const modelFolder = gui.addFolder("MODEL");
-  
+
   const modelOptions = Object.keys(CONFIG.models);
   const modelSelection = { selected: "Slow Qi" };
-  
+
   modelFolder
     .add(modelSelection, "selected", modelOptions)
     .name("Character")
@@ -54,7 +54,7 @@ export function initGUI() {
       const modelPath = CONFIG.models[selectedKey];
       onModelChange(modelPath);
     });
-  
+
   modelFolder.open();
 
   // Character settings folder
@@ -343,7 +343,7 @@ export function initGUI() {
     // If this was focused, focus another active effect or none
     if (params._focusedEffect === effectName) {
       const otherActive = Object.entries(params.activeEffects).find(
-        ([_, v]) => v
+        ([_, v]) => v,
       );
       if (otherActive) {
         focusEffect(otherActive[0]);
@@ -441,7 +441,7 @@ export function initGUI() {
           resetAllButtons();
         },
       },
-      "return"
+      "return",
     )
     .name("RETURN");
 
@@ -461,7 +461,7 @@ export function initGUI() {
           resetAllButtons();
         },
       },
-      "stop"
+      "stop",
     )
     .name("STOP ALL");
 
@@ -552,7 +552,7 @@ export function initGUI() {
           c.updateDisplay();
         }
       });
-    }
+    },
   );
 
   // Store resetAllButtons for use in main.js
@@ -607,7 +607,7 @@ export function initGUI() {
     toggleMode: () => {
       const newMode = toggleIncubationMode();
       modeBtn.name(
-        newMode === "holographic" ? "🎲 RUBIX MODE" : "🔮 HOLO MODE"
+        newMode === "holographic" ? "🎲 RUBIX MODE" : "🔮 HOLO MODE",
       );
     },
   };

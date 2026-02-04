@@ -30,12 +30,12 @@ export function sampleSkeletonBones() {
 
     // Find ONLY tail bones
     const tailBones = bones.filter((bone) =>
-      bone.name.toLowerCase().includes("tail")
+      bone.name.toLowerCase().includes("tail"),
     );
 
     console.log(
       `Found ${tailBones.length} TAIL bones:`,
-      tailBones.map((b) => b.name)
+      tailBones.map((b) => b.name),
     );
 
     // For each tail bone, add points along its length
@@ -95,11 +95,13 @@ export function sampleVertices() {
   });
   const modelSize = overallBounds.getSize(new THREE.Vector3());
   const modelVolume = modelSize.x * modelSize.y * modelSize.z;
-  
+
   // Target point density based on model size
   // Larger models need more points to look filled
   const targetPointDensity = Math.max(10000, Math.min(80000, modelVolume / 50));
-  console.log(`Model size: ${modelSize.x.toFixed(1)} x ${modelSize.y.toFixed(1)} x ${modelSize.z.toFixed(1)}`);
+  console.log(
+    `Model size: ${modelSize.x.toFixed(1)} x ${modelSize.y.toFixed(1)} x ${modelSize.z.toFixed(1)}`,
+  );
   console.log(`Target point density: ${targetPointDensity.toFixed(0)}`);
 
   skinnedMeshes.forEach((mesh, meshIndex) => {
@@ -113,19 +115,24 @@ export function sampleVertices() {
     totalVertices += vertexCount;
 
     console.log(
-      `Mesh ${meshIndex} (${mesh.name}): ${vertexCount} total vertices`
+      `Mesh ${meshIndex} (${mesh.name}): ${vertexCount} total vertices`,
     );
 
     // Calculate mesh-specific bounds
     const meshBounds = new THREE.Box3().setFromBufferAttribute(positionAttr);
     const meshSize = meshBounds.getSize(new THREE.Vector3());
-    
+
     // Adaptive sampling density based on vertex count vs target
     // If model has few vertices, sample more densely
-    const adaptiveDensity = Math.max(1, Math.floor(vertexCount / (targetPointDensity / skinnedMeshes.length)));
+    const adaptiveDensity = Math.max(
+      1,
+      Math.floor(vertexCount / (targetPointDensity / skinnedMeshes.length)),
+    );
     const effectiveDensity = Math.min(adaptiveDensity, params.samplingDensity);
-    
-    console.log(`Mesh ${meshIndex}: using adaptive density ${effectiveDensity} (base: ${params.samplingDensity})`);
+
+    console.log(
+      `Mesh ${meshIndex}: using adaptive density ${effectiveDensity} (base: ${params.samplingDensity})`,
+    );
 
     // Helper to add a sample point with bone weights
     const addSample = (sample, boneIdx, boneWeight) => {
@@ -144,7 +151,7 @@ export function sampleVertices() {
       new THREE.Vector3(
         positionAttr.getX(idx),
         positionAttr.getY(idx),
-        positionAttr.getZ(idx)
+        positionAttr.getZ(idx),
       );
 
     // Helper to calculate triangle area
@@ -164,7 +171,7 @@ export function sampleVertices() {
               skinIndexAttr.getX(i),
               skinIndexAttr.getY(i),
               skinIndexAttr.getZ(i),
-              skinIndexAttr.getW(i)
+              skinIndexAttr.getW(i),
             )
           : null,
         skinWeightAttr
@@ -172,9 +179,9 @@ export function sampleVertices() {
               skinWeightAttr.getX(i),
               skinWeightAttr.getY(i),
               skinWeightAttr.getZ(i),
-              skinWeightAttr.getW(i)
+              skinWeightAttr.getW(i),
             )
-          : null
+          : null,
       );
     }
 
@@ -184,7 +191,7 @@ export function sampleVertices() {
     // ADAPTIVE SAMPLING: Sample more points in larger triangles
     if (indexAttr) {
       const faceCount = indexAttr.count / 3;
-      
+
       // Use adaptive density for face sampling too
       const faceDensity = Math.max(1, effectiveDensity);
 
@@ -204,10 +211,10 @@ export function sampleVertices() {
 
       console.log(
         `Mesh ${meshIndex}: avg triangle area = ${avgArea.toFixed(
-          4
+          4,
         )}, max = ${maxArea.toFixed(4)}, threshold = ${largeThreshold.toFixed(
-          4
-        )}`
+          4,
+        )}`,
       );
 
       for (let f = 0; f < faceCount; f += faceDensity) {
@@ -224,7 +231,7 @@ export function sampleVertices() {
                 skinWeightAttr.getX(idx),
                 skinWeightAttr.getY(idx),
                 skinWeightAttr.getZ(idx),
-                skinWeightAttr.getW(idx)
+                skinWeightAttr.getW(idx),
               )
             : null,
           index: skinIndexAttr
@@ -232,7 +239,7 @@ export function sampleVertices() {
                 skinIndexAttr.getX(idx),
                 skinIndexAttr.getY(idx),
                 skinIndexAttr.getZ(idx),
-                skinIndexAttr.getW(idx)
+                skinIndexAttr.getW(idx),
               )
             : null,
         });
@@ -250,7 +257,7 @@ export function sampleVertices() {
         addSample(
           { meshIndex, type: "faceCenter", faceVertices: [i0, i1, i2] },
           b0.index,
-          b0.weight
+          b0.weight,
         );
         totalFaceCenters++;
 
@@ -293,7 +300,7 @@ export function sampleVertices() {
           addSample(
             { meshIndex, type: "interior", faceVertices: [i0, i1, i2], bary },
             b0.index,
-            b0.weight
+            b0.weight,
           );
           totalInteriorPoints++;
         }
@@ -321,7 +328,7 @@ export function sampleVertices() {
               addSample(
                 { meshIndex, type: "edgePoint", edgeVertices: [a, b], t },
                 ba.index,
-                ba.weight
+                ba.weight,
               );
               totalEdgePoints++;
             }
@@ -334,13 +341,13 @@ export function sampleVertices() {
   console.log(`\n=== VERTEX SAMPLING SUMMARY ===`);
   console.log(`Total vertices available: ${totalVertices}`);
   console.log(
-    `Vertices sampled: ${Math.floor(totalVertices / params.samplingDensity)}`
+    `Vertices sampled: ${Math.floor(totalVertices / params.samplingDensity)}`,
   );
   console.log(`Face centers added: ${totalFaceCenters}`);
   console.log(`Edge points added: ${totalEdgePoints}`);
   console.log(`Interior points added: ${totalInteriorPoints}`);
   console.log(
-    `Adaptive extra points (large triangles): ${totalAdaptivePoints}`
+    `Adaptive extra points (large triangles): ${totalAdaptivePoints}`,
   );
   console.log(`Sampling density: every ${params.samplingDensity}`);
   console.log(`FINAL TOTAL POINTS: ${sampledVertexIndices.length}`);

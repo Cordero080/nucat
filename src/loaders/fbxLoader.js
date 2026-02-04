@@ -23,7 +23,7 @@ import {
  */
 export function loadFBXModel(modelPath = null) {
   const path = modelPath || CONFIG.model.path;
-  
+
   return new Promise((resolve, reject) => {
     const loader = new FBXLoader();
 
@@ -42,7 +42,7 @@ export function loadFBXModel(modelPath = null) {
             console.log("Found SkinnedMesh:", child.name);
             console.log(
               "Vertex count:",
-              child.geometry.attributes.position.count
+              child.geometry.attributes.position.count,
             );
             // Hide original mesh - only show ASCII characters
             child.visible = false;
@@ -59,7 +59,7 @@ export function loadFBXModel(modelPath = null) {
               "Found regular Mesh:",
               child.name,
               "vertices:",
-              child.geometry.attributes.position.count
+              child.geometry.attributes.position.count,
             );
           }
         });
@@ -91,10 +91,10 @@ export function loadFBXModel(modelPath = null) {
         console.error("FBX loading failed:", error);
         reject(
           new Error(
-            `Failed to load FBX model: ${error.message || "Unknown error"}`
-          )
+            `Failed to load FBX model: ${error.message || "Unknown error"}`,
+          ),
         );
-      }
+      },
     );
   });
 }
@@ -108,7 +108,7 @@ export function disposeCurrentModel() {
     mixer.stopAllAction();
     mixer.uncacheRoot(fbxModel);
   }
-  
+
   // Dispose instanced mesh
   if (instancedMesh) {
     if (instancedMesh.parent) {
@@ -117,7 +117,7 @@ export function disposeCurrentModel() {
     instancedMesh.geometry?.dispose();
     instancedMesh.material?.dispose();
   }
-  
+
   // Dispose FBX model
   if (fbxModel) {
     scene.remove(fbxModel);
@@ -125,20 +125,20 @@ export function disposeCurrentModel() {
       if (child.geometry) child.geometry.dispose();
       if (child.material) {
         if (Array.isArray(child.material)) {
-          child.material.forEach(m => m.dispose());
+          child.material.forEach((m) => m.dispose());
         } else {
           child.material.dispose();
         }
       }
     });
   }
-  
+
   // Clear state
   clearSkinnedMeshes();
   clearSampledData();
   setFbxModel(null);
   setMixer(null);
-  
+
   console.log("🗑️ Previous model disposed");
 }
 
@@ -151,7 +151,7 @@ export function setupAnimationMixer(fbx) {
   if (fbx.animations && fbx.animations.length > 0) {
     fbx.animations.forEach((clip, index) => {
       console.log(
-        `Animation clip ${index}: ${clip.name}, duration: ${clip.duration}s`
+        `Animation clip ${index}: ${clip.name}, duration: ${clip.duration}s`,
       );
       const action = mixer.clipAction(clip);
       action.play();
