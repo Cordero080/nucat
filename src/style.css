@@ -9,8 +9,273 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #000000; /* CHANGE THIS COLOR */
+    background-color: #0a0612;
     font-family: 'Courier New', monospace;
+}
+
+/* ==========================================================================
+   LANDING PAGE - HOLOGRAPHIC GRADIENT WITH 3D TEXT
+   ========================================================================== */
+
+#landing {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, 
+        #0a0612 0%, 
+        #1a0a2e 25%, 
+        #16082a 50%, 
+        #0d0628 75%, 
+        #0a0612 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    overflow: hidden;
+}
+
+#landing.hidden {
+    display: none;
+}
+
+/* Three.js canvas container */
+#landing-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+#landing-canvas canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Landing subtitle - CSS styled */
+#landing-subtitle {
+    position: absolute;
+    bottom: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-size: clamp(14px, 2vw, 24px);
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: #60a5fa;
+    text-shadow: 
+        0 0 10px rgba(36, 87, 169, 0.8),
+        0 0 20px rgba(59, 130, 246, 0.5),
+        0 0 10px rgba(59, 130, 246, 0.3);
+    z-index: 10;
+    opacity: 0;
+    animation: subtitleFadeIn 1.5s ease-out 0.5s forwards;
+}
+
+@keyframes subtitleFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Animated gradient orbs for holographic effect */
+.gradient-orbs {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: floatOrb 8s ease-in-out infinite;
+}
+
+.orb-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #6b21a8 0%, #7c3aed 50%, transparent 70%);
+    top: -10%;
+    left: -10%;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, #1e3a8a 0%, #3b82f6 50%, transparent 70%);
+    bottom: -20%;
+    right: -15%;
+    animation-delay: -3s;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #831843 0%, #be185d 50%, transparent 70%);
+    top: 40%;
+    left: 60%;
+    animation-delay: -5s;
+}
+
+@keyframes floatOrb {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(30px, -30px) scale(1.05);
+    }
+    50% {
+        transform: translate(-20px, 20px) scale(0.95);
+    }
+    75% {
+        transform: translate(-30px, -20px) scale(1.02);
+    }
+}
+
+/* Enter button - Holographic cyber style */
+.enter-button {
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    padding: 1rem 3.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #f0e6ff;
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.12) 0%, 
+        rgba(59, 130, 246, 0.08) 50%,
+        rgba(168, 85, 247, 0.12) 100%);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 
+        inset 0 0 0 1px rgba(167, 139, 250, 0.3);
+}
+
+/* Glowing border animation */
+.enter-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 2px;
+    padding: 1px;
+    background: linear-gradient(135deg, 
+        rgba(167, 139, 250, 0.6), 
+        rgba(59, 130, 246, 0.3),
+        rgba(236, 72, 153, 0.4),
+        rgba(167, 139, 250, 0.6));
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+/* Shimmer sweep effect */
+.enter-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.08),
+        transparent
+    );
+    transition: left 0.6s ease;
+}
+
+.enter-button:hover {
+    color: #ffffff;
+    background: linear-gradient(135deg, 
+        rgba(139, 92, 246, 0.25) 0%, 
+        rgba(59, 130, 246, 0.15) 50%,
+        rgba(168, 85, 247, 0.25) 100%);
+    transform: translateX(-50%) translateY(-3px);
+    box-shadow: 
+        inset 0 0 0 1px rgba(167, 139, 250, 0.5),
+        12px 12px 20px rgba(0, 0, 0, 0.5);
+}
+
+.enter-button:hover::before {
+    opacity: 1;
+}
+
+.enter-button:hover::after {
+    left: 100%;
+}
+
+.enter-button:active {
+    transform: translateX(-50%) translateY(1px);
+    box-shadow: 
+        inset 0 0 0 1px rgba(167, 139, 250, 0.6),
+        1px 1px 0 0 rgba(107, 33, 168, 0.2);
+}
+
+.enter-button span {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+}
+
+.button-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, 
+        rgba(139, 92, 246, 0.3) 0%, 
+        rgba(59, 130, 246, 0.1) 40%,
+        transparent 70%);
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+    transition: all 0.4s ease;
+    pointer-events: none;
+}
+
+.enter-button:hover .button-glow {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* ==========================================================================
+   MAIN APP STYLES
+   ========================================================================== */
+
+#canvas-container.hidden {
+    display: none;
 }
 
 /* Chaos Mix animation */

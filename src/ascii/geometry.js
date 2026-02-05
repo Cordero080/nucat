@@ -29,7 +29,7 @@ export function createCharacterGeometry() {
   setCurrentGeometry(geometry);
 
   console.log(
-    `Created ASCII character geometry: "${params.character}" with size: ${params.characterSize}`
+    `Created ASCII character geometry: "${params.character}" with size: ${params.characterSize}`,
   );
 
   return geometry;

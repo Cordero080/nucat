@@ -1,0 +1,100 @@
+/* ============================================
+   SIGN IN BUTTON - Polygon Clip-Path Version
+   Angular cyberpunk style matching form inputs
+   ============================================ */
+
+.btn-submit,
+.submit-button {
+  width: 100%;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 12px 24px;
+  font-family: var(--font-main);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  letter-spacing: 1.25px;
+  text-transform: uppercase;
+  color: white !important;
+  
+  /* Layered cosmic black background with depth */
+  background:
+    linear-gradient(145deg, #0a0a0a, #000000),
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.5), transparent 50%),
+    linear-gradient(
+      45deg,
+      rgba(26, 115, 231, 0.1),
+      rgba(220, 8, 188, 0.1),
+      rgba(26, 115, 231, 0.1)
+    );
+  background-size: 100% 100%, 150% 150%, 150% 150%, 200% 200%;
+  background-position: 0% 50%, 75% 75%, 75% 75%, 50% 50%;
+  background-blend-mode: overlay, multiply, overlay;
+  
+  /* Cyberpunk border - cyan/blue glow */
+  border: 2px solid rgba(50, 140, 255, 0.6);
+  border-radius: 0; /* Remove for clean polygon edges */
+  
+  /* Angular clip-path - matching form inputs */
+  clip-path: polygon(
+    12px 0,           /* Top-left corner cut */
+    100% 0,           /* Top-right */
+    100% calc(100% - 12px),  /* Bottom-right corner cut start */
+    calc(100% - 12px) 100%,  /* Bottom-right corner cut */
+    0 100%,           /* Bottom-left */
+    0 12px            /* Top-left corner cut end */
+  );
+  
+  /* 3D depth shadows */
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(26, 115, 231, 0.3),
+    inset 0 1px 3px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.5);
+  
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+  
+  /* Text glow effect */
+  text-shadow:
+    0 0 5px rgba(26, 115, 231, 0.5),
+    0 0 10px rgba(220, 8, 188, 0.3);
+}
+
+/* Hover state - enhanced glow */
+.btn-submit:hover:not(:disabled),
+.submit-button:hover:not(:disabled) {
+  border-color: rgba(80, 160, 255, 0.9);
+  transform: translateY(-3px);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(26, 115, 231, 0.5),
+    0 0 50px rgba(220, 8, 188, 0.3),
+    inset 0 1px 3px rgba(255, 255, 255, 0.15),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    0 0 8px rgba(26, 115, 231, 0.8),
+    0 0 15px rgba(220, 8, 188, 0.5);
+}
+
+/* Active/pressed state */
+.btn-submit:active:not(:disabled),
+.submit-button:active:not(:disabled) {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.9),
+    0 0 15px rgba(26, 115, 231, 0.4),
+    inset 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Disabled state */
+.btn-submit:disabled,
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(50, 140, 255, 0.3);
+}

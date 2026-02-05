@@ -27,8 +27,8 @@ import {
 } from "./core/holographicCube.js";
 
 // Loaders
-import { loadFont } from "./loaders/fontLoader.js";
 import { loadFBXModel } from "./loaders/fbxLoader.js";
+import { loadFont } from "./loaders/fontLoader.js";
 
 // ASCII system
 import {
@@ -37,15 +37,51 @@ import {
 } from "./ascii/index.js";
 import { processMystiqueFade } from "./ascii/mystiqueFade.js";
 import { processChaosMix } from "./ascii/chaosMix.js";
-import { processHandGestures } from "./ascii/instancedMesh.js";
 
 // GUI
 import { initGUI } from "./gui/gui.js";
+
+// Landing page
+import {
+  initLandingScene,
+  destroyLandingScene,
+} from "./landing/landingScene.js";
 
 // Utils
 import { autoFrameCamera } from "./utils/camera.js";
 import { hideLoading, showError } from "./utils/ui.js";
 import { onWindowResize } from "./utils/resize.js";
+
+/**
+ * Setup landing page interaction
+ */
+function setupLandingPage() {
+  // Initialize 3D landing scene
+  initLandingScene();
+
+  const landing = document.getElementById("landing");
+  const enterBtn = document.getElementById("enter-btn");
+  const loading = document.getElementById("loading");
+  const canvasContainer = document.getElementById("canvas-container");
+
+  enterBtn.addEventListener("click", () => {
+    // Fade out landing page
+    landing.style.transition = "opacity 0.5s ease";
+    landing.style.opacity = "0";
+
+    setTimeout(() => {
+      // Clean up landing scene
+      destroyLandingScene();
+
+      landing.classList.add("hidden");
+      loading.classList.remove("hidden");
+      canvasContainer.classList.remove("hidden");
+
+      // Start the main app
+      init();
+    }, 500);
+  });
+}
 
 /**
  * Main initialization function
@@ -63,8 +99,10 @@ async function init() {
     // Window resize handler
     window.addEventListener("resize", onWindowResize);
 
-    // Load assets
+    // Load font for ASCII characters
     await loadFont();
+
+    // Load FBX model (no font needed - using Orbitron via canvas)
     const fbx = await loadFBXModel();
 
     // Initialize ASCII point cloud
@@ -117,9 +155,6 @@ function animate() {
   // Process chaos mix evolution
   processChaosMix(delta);
 
-  // Process hand gesture triggers
-  processHandGestures();
-
   // Animate disperse effect (works with button OR activeEffects)
   const disperseActive =
     params.activeEffects?.disperse || params.effectType === "disperse";
@@ -150,5 +185,5 @@ function animate() {
   composer.render();
 }
 
-// Start
-init();
+// Start with landing page
+setupLandingPage();

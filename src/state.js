@@ -24,6 +24,7 @@ export let fbxModel = null;
 export let instancedMesh = null;
 export let font = null;
 export let currentGeometry = null;
+export let currentTexture = null;
 
 // Vertex sampling data
 export let sampledVertexIndices = [];
@@ -98,6 +99,10 @@ export function setFont(f) {
 }
 export function setCurrentGeometry(g) {
   currentGeometry = g;
+}
+
+export function setCurrentTexture(t) {
+  currentTexture = t;
 }
 
 export function addSkinnedMesh(mesh) {

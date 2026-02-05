@@ -10,6 +10,7 @@ import {
   skinnedMeshes,
   instancedMesh,
   currentGeometry,
+  currentTexture,
   sampledVertexIndices,
   setInstancedMesh,
   tempMatrix,
@@ -27,12 +28,6 @@ import {
   isModelIncubated,
   reattachInstancedMesh,
 } from "../core/holographicCube.js";
-import {
-  handPresent,
-  handPosition,
-  gestureState,
-  getHandInfluence,
-} from "../input/handTracking.js";
 
 /**
  * Create the InstancedMesh for efficient multi-character rendering
@@ -47,13 +42,17 @@ export function createInstancedMesh() {
     instancedMesh.dispose();
   }
 
-  // Create material with emissive properties for glow
+  // Create material with texture and emissive properties for glow
   const material = new THREE.MeshStandardMaterial({
+    map: currentTexture,
     color: new THREE.Color(params.color),
     emissive: new THREE.Color(params.color),
     emissiveIntensity: params.emissiveIntensity,
-    metalness: 0.8,
-    roughness: 0.2,
+    transparent: true,
+    alphaTest: 0.1,
+    side: THREE.DoubleSide,
+    metalness: 0.3,
+    roughness: 0.4,
   });
 
   // Create instanced mesh with sampled vertex count
@@ -61,7 +60,7 @@ export function createInstancedMesh() {
   const mesh = new THREE.InstancedMesh(
     currentGeometry,
     material,
-    instanceCount
+    instanceCount,
   );
   mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
@@ -89,8 +88,8 @@ export function createInstancedMesh() {
       new THREE.Vector3(
         (Math.random() - 0.5) * 2,
         (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2
-      ).normalize()
+        (Math.random() - 0.5) * 2,
+      ).normalize(),
     );
   }
   setDisperseDirections(directions);
@@ -124,7 +123,7 @@ export function updateASCIIPositions() {
       tempPosition.set(
         (p0.x + p1.x + p2.x) / 3,
         (p0.y + p1.y + p2.y) / 3,
-        (p0.z + p1.z + p2.z) / 3
+        (p0.z + p1.z + p2.z) / 3,
       );
     } else if (sample.type === "edgePoint") {
       const [a, b] = sample.edgeVertices;
@@ -150,7 +149,7 @@ export function updateASCIIPositions() {
       tempPosition.set(
         p0.x * u + p1.x * v + p2.x * w,
         p0.y * u + p1.y * v + p2.y * w,
-        p0.z * u + p1.z * v + p2.z * w
+        p0.z * u + p1.z * v + p2.z * w,
       );
     } else if (sample.type === "edgeMidpoint") {
       const [a, b] = sample.edgeVertices;
@@ -179,7 +178,7 @@ export function updateASCIIPositions() {
         tempNormal.fromBufferAttribute(normalAttr, sample.vertexIndex);
         tempQuaternion.setFromUnitVectors(
           new THREE.Vector3(0, 0, 1),
-          tempNormal.normalize()
+          tempNormal.normalize(),
         );
       } else {
         tempQuaternion.identity();
@@ -203,11 +202,6 @@ export function updateASCIIPositions() {
  */
 function applyEffects(instanceIndex, position) {
   const { activeEffects, effectParams, disperseAmount } = params;
-
-  // Apply hand tracking influence first (if enabled)
-  if (params.handTrackingEnabled && handPresent) {
-    applyHandInfluence(instanceIndex, position);
-  }
 
   // Check if any effects are active
   const hasActiveEffect = Object.values(activeEffects).some((v) => v);
@@ -334,54 +328,4 @@ function applySpiralFlowEffect(instanceIndex, position, time, effectParam) {
   position.y += Math.sin(smoothProgress * Math.PI) * spiralHeight;
   position.z +=
     (dirZ / dirLen) * outwardDist + Math.sin(spiralAngle) * spiralRadius;
-}
-
-/**
- * Apply hand tracking influence to particle position
- * Hand pushes nearby particles away (or attracts with pinch)
- */
-function applyHandInfluence(instanceIndex, position) {
-  const { force, strength } = getHandInfluence(position);
-
-  if (strength === 0) return;
-
-  // Apply push/pull force
-  position.x += force.x * strength;
-  position.y += force.y * strength;
-  position.z += force.z * strength;
-}
-
-/**
- * Process hand gestures and trigger corresponding effects
- * Called from the main animation loop
- */
-export function processHandGestures() {
-  if (!params.handTrackingEnabled || !handPresent) return;
-
-  // Fist → Disperse explosion
-  if (gestureState.isFist && !params.activeEffects.disperse) {
-    params.activeEffects.disperse = true;
-    params._disperseTarget = 1;
-    console.log("✊ Fist detected → Disperse!");
-  } else if (!gestureState.isFist && params._handTriggeredDisperse) {
-    // Release fist → stop disperse
-    params.activeEffects.disperse = false;
-    params._disperseTarget = 0;
-    params._handTriggeredDisperse = false;
-  }
-
-  if (gestureState.isFist) {
-    params._handTriggeredDisperse = true;
-  }
-
-  // Wave → Wave effect
-  if (gestureState.isWaving && !params.activeEffects.wave) {
-    params.activeEffects.wave = true;
-    params._handTriggeredWave = true;
-    console.log("👋 Wave detected → Wave effect!");
-  } else if (!gestureState.isWaving && params._handTriggeredWave) {
-    // Wave done → gradual fade
-    params.activeEffects.wave = false;
-    params._handTriggeredWave = false;
-  }
 }

@@ -1,20 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ASCII Point Cloud - Mixamo Animation</title>
+    <title>NUCAT - ASCII Point Cloud Animation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="src/style.css" />
   </head>
   <body>
+    <!-- Landing Page -->
+    <div id="landing">
+      <div id="landing-canvas"></div>
+      <div class="gradient-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+      </div>
+      <p id="landing-subtitle">ASCII POINT CLOUD</p>
+      <button id="enter-btn" class="enter-button">
+        <span>Enter</span>
+        <div class="button-glow"></div>
+      </button>
+    </div>
+
     <!-- Loading indicator -->
-    <div id="loading">
+    <div id="loading" class="hidden">
       <div class="loader"></div>
       <p>Loading FBX Model...</p>
     </div>
 
     <!-- Main canvas container -->
-    <div id="canvas-container"></div>
+    <div id="canvas-container" class="hidden"></div>
 
     <!-- Import map for ES6 modules -->
     <script type="importmap">

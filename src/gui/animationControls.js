@@ -1,0 +1,562 @@
+/**
+ * Animation Controls Panel - Right side
+ * Effects, quick actions, animation settings
+ */
+
+import GUI from "three/addons/libs/lil-gui.module.min.js";
+import { CONFIG, params } from "../config.js";
+import { onColorChange, onBloomChange } from "./handlers.js";
+import {
+  initChaosMix,
+  startChaosMix,
+  stopChaosMix,
+  isChaosMixRunning,
+} from "../ascii/chaosMix.js";
+import {
+  toggleIncubation,
+  isModelIncubated,
+  setOnIncubateChange,
+  toggleIncubationMode,
+  getIncubationMode,
+  setOnModeChange,
+} from "../core/holographicCube.js";
+
+// Effect colors - unique for each effect
+const EFFECT_COLORS = {
+  hover: { bright: "#3b82f6", dim: "#1e3a5f" }, // Blue
+  noise: { bright: "#eab308", dim: "#5c4a0a" }, // Yellow
+  wave: { bright: "#06b6d4", dim: "#0a4a54" }, // Cyan
+  spiral: { bright: "#a855f7", dim: "#4a2270" }, // Purple
+  disperse: { bright: "#f97316", dim: "#5c2d0a" }, // Orange
+  spiralFlow: { bright: "#ec4899", dim: "#5c1a3a" }, // Magenta
+};
+const INACTIVE_COLOR = "#333";
+
+/**
+ * Initialize animation controls panel (right side)
+ */
+export function initAnimationControls() {
+  const gui = new GUI({ title: "ANIMATION" });
+
+  // Position on right side (default lil-gui position)
+  gui.domElement.style.maxHeight = "90vh";
+  gui.domElement.style.overflowY = "auto";
+
+  // Store button elements and controllers
+  const effectButtons = {};
+  const buttonElements = {};
+  let effectParamsFolderEl = null;
+
+  // ═══════════════════════════════════════════════════════════════
+  // ANIMATION SETTINGS
+  // ═══════════════════════════════════════════════════════════════
+  const animFolder = gui.addFolder("PLAYBACK");
+  animFolder.add(params, "animationSpeed", 0.1, 3.0, 0.1).name("Speed");
+  animFolder.add(params, "billboardMode").name("Billboard Mode");
+
+  // ═══════════════════════════════════════════════════════════════
+  // EFFECTS TYPE
+  // ═══════════════════════════════════════════════════════════════
+  const effectsFolder = gui.addFolder("EFFECTS");
+
+  effectsFolder
+    .add(params, "effectType", [
+      "none",
+      "hover",
+      "disperse",
+      "noise",
+      "wave",
+      "spiral",
+      "spiralFlow",
+    ])
+    .name("Effect Type")
+    .onChange(() => {
+      params._disperseTarget = params.effectType === "disperse" ? 1 : 0;
+      params._spiralFlowActive = params.effectType === "spiralFlow";
+    });
+
+  // ═══════════════════════════════════════════════════════════════
+  // QUICK ACTIONS
+  // ═══════════════════════════════════════════════════════════════
+  const actionsFolder = gui.addFolder("QUICK ACTIONS");
+
+  // Button style helpers
+  function updateButtonStyle(effectName, state) {
+    const el = buttonElements[effectName];
+    if (!el) return;
+
+    const colors = EFFECT_COLORS[effectName];
+    const stopBtn = el.querySelector(".stop-btn");
+
+    if (state === "inactive") {
+      el.style.backgroundColor = "";
+      el.style.borderLeftColor = INACTIVE_COLOR;
+      el.style.color = "";
+      if (stopBtn) stopBtn.style.display = "none";
+    } else if (state === "active-focused") {
+      el.style.backgroundColor = colors.bright;
+      el.style.borderLeftColor = colors.bright;
+      el.style.color = "#fff";
+      if (stopBtn) stopBtn.style.display = "block";
+    } else if (state === "active-dimmed") {
+      el.style.backgroundColor = colors.dim;
+      el.style.borderLeftColor = colors.dim;
+      el.style.color = "#aaa";
+      if (stopBtn) stopBtn.style.display = "block";
+    }
+  }
+
+  function updateParamsBorder(effectName) {
+    if (effectParamsFolderEl && effectName && EFFECT_COLORS[effectName]) {
+      const color = EFFECT_COLORS[effectName].bright;
+      effectParamsFolderEl.style.borderLeft = `3px solid ${color}`;
+      effectParamsFolderEl
+        .querySelectorAll(".controller .name")
+        .forEach((label) => {
+          label.style.color = color;
+        });
+      effectParamsFolderEl.querySelectorAll("input").forEach((input) => {
+        input.style.color = color;
+        input.style.borderColor = `${color}66`;
+      });
+      effectParamsFolderEl.querySelectorAll(".slider").forEach((slider) => {
+        const fill = slider.querySelector(".fill");
+        if (fill)
+          fill.style.background = `linear-gradient(90deg, ${color}aa, ${color})`;
+      });
+    } else if (effectParamsFolderEl) {
+      effectParamsFolderEl.style.borderLeft =
+        "3px solid rgba(80, 120, 160, 0.2)";
+      effectParamsFolderEl
+        .querySelectorAll(".controller .name")
+        .forEach((label) => {
+          label.style.color = "";
+        });
+      effectParamsFolderEl.querySelectorAll("input").forEach((input) => {
+        input.style.color = "";
+        input.style.borderColor = "";
+      });
+      effectParamsFolderEl.querySelectorAll(".slider").forEach((slider) => {
+        const fill = slider.querySelector(".fill");
+        if (fill) fill.style.background = "";
+      });
+    }
+  }
+
+  function updateAllButtonStyles() {
+    Object.keys(params.activeEffects).forEach((name) => {
+      if (params.activeEffects[name]) {
+        if (params._focusedEffect === name) {
+          updateButtonStyle(name, "active-focused");
+        } else {
+          updateButtonStyle(name, "active-dimmed");
+        }
+      } else {
+        updateButtonStyle(name, "inactive");
+      }
+    });
+    updateParamsBorder(params._focusedEffect);
+  }
+
+  function resetAllButtons() {
+    Object.keys(params.activeEffects).forEach((name) => {
+      updateButtonStyle(name, "inactive");
+    });
+    params._focusedEffect = null;
+    updateParamsBorder(null);
+  }
+
+  // Save/load params for focused effect
+  function saveParamsToEffect(effectName) {
+    if (!effectName || !params.effectParams[effectName]) return;
+    params.effectParams[effectName].intensity = params.effectIntensity;
+    params.effectParams[effectName].speed = params.effectSpeed;
+    if (effectName === "spiralFlow") {
+      params.effectParams[effectName].flowSpeed = params.spiralFlowSpeed;
+      params.effectParams[effectName].waves = params.spiralFlowWaves;
+    }
+  }
+
+  function loadParamsFromEffect(effectName) {
+    if (!effectName || !params.effectParams[effectName]) return;
+    params.effectIntensity = params.effectParams[effectName].intensity;
+    params.effectSpeed = params.effectParams[effectName].speed;
+    if (effectName === "spiralFlow") {
+      params.spiralFlowSpeed = params.effectParams[effectName].flowSpeed;
+      params.spiralFlowWaves = params.effectParams[effectName].waves;
+    }
+    gui.controllersRecursive().forEach((c) => c.updateDisplay());
+  }
+
+  function focusEffect(effectName, loadParams = false) {
+    if (params._focusedEffect && params._focusedEffect !== effectName) {
+      saveParamsToEffect(params._focusedEffect);
+    }
+    params._focusedEffect = effectName;
+    if (loadParams) {
+      loadParamsFromEffect(effectName);
+    }
+    updateAllButtonStyles();
+  }
+
+  function toggleEffect(effectName) {
+    params._isReturning = false;
+    const isActive = params.activeEffects[effectName];
+
+    if (isActive && params._focusedEffect === effectName) {
+      loadParamsFromEffect(effectName);
+      return;
+    } else if (isActive) {
+      focusEffect(effectName, false);
+    } else {
+      params.activeEffects[effectName] = true;
+      focusEffect(effectName, false);
+
+      if (effectName === "disperse") {
+        params._disperseTarget = 1;
+      }
+      if (effectName === "spiralFlow") {
+        params._spiralFlowActive = true;
+        params.spiralFlowProgress = 0;
+      }
+    }
+
+    const activeList = Object.entries(params.activeEffects)
+      .filter(([_, v]) => v)
+      .map(([k]) => k);
+    params.effectType = activeList.length > 0 ? activeList[0] : "none";
+  }
+
+  function stopEffect(effectName) {
+    params.activeEffects[effectName] = false;
+
+    if (effectName === "disperse") {
+      params._disperseTarget = 0;
+    }
+    if (effectName === "spiralFlow") {
+      params._spiralFlowActive = false;
+    }
+
+    if (params._focusedEffect === effectName) {
+      const otherActive = Object.entries(params.activeEffects).find(
+        ([_, v]) => v,
+      );
+      if (otherActive) {
+        focusEffect(otherActive[0]);
+      } else {
+        params._focusedEffect = null;
+        updateParamsBorder(null);
+      }
+    }
+
+    updateAllButtonStyles();
+
+    const activeList = Object.entries(params.activeEffects)
+      .filter(([_, v]) => v)
+      .map(([k]) => k);
+    params.effectType = activeList.length > 0 ? activeList[0] : "none";
+  }
+
+  function createEffectButton(effectName, label) {
+    const action = {};
+    action[effectName] = () => toggleEffect(effectName);
+    const controller = actionsFolder.add(action, effectName).name(label);
+    effectButtons[effectName] = controller;
+
+    setTimeout(() => {
+      const el = controller.domElement.closest(".controller");
+      if (el) {
+        buttonElements[effectName] = el;
+        el.style.position = "relative";
+        el.style.borderLeft = "3px solid";
+        el.style.borderTop = "none";
+        el.style.borderBottom = "none";
+        el.style.marginBottom = "1px";
+        el.style.transition = "all 0.15s ease";
+        el.style.letterSpacing = "1px";
+        el.style.fontSize = "10px";
+        el.style.fontWeight = "500";
+
+        // Create stop button
+        const stopBtn = document.createElement("div");
+        stopBtn.className = "stop-btn";
+        stopBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="currentColor" rx="1"/></svg>`;
+        stopBtn.style.cssText = `
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 16px;
+          height: 16px;
+          background: rgba(255, 60, 60, 0.15);
+          color: #ff4444;
+          border: 1px solid rgba(255, 60, 60, 0.4);
+          border-radius: 3px;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        `;
+        stopBtn.onclick = (e) => {
+          e.stopPropagation();
+          stopEffect(effectName);
+        };
+        el.appendChild(stopBtn);
+
+        updateButtonStyle(effectName, "inactive");
+      }
+    }, 0);
+
+    return controller;
+  }
+
+  // Create effect buttons
+  createEffectButton("hover", "HOVER");
+  createEffectButton("noise", "NOISE");
+  createEffectButton("wave", "WAVE");
+  createEffectButton("spiral", "SPIRAL");
+  createEffectButton("disperse", "DISPERSE");
+  createEffectButton("spiralFlow", "FLOW");
+
+  // Return button
+  actionsFolder
+    .add(
+      {
+        return: () => {
+          params._isReturning = true;
+          params._disperseTarget = 0;
+          Object.keys(params.activeEffects).forEach((key) => {
+            params.activeEffects[key] = false;
+          });
+          params._focusedEffect = null;
+          resetAllButtons();
+        },
+      },
+      "return",
+    )
+    .name("RETURN");
+
+  // Stop All button
+  actionsFolder
+    .add(
+      {
+        stop: () => {
+          params._isReturning = false;
+          Object.keys(params.activeEffects).forEach((key) => {
+            params.activeEffects[key] = false;
+          });
+          params.effectType = "none";
+          params._disperseTarget = 0;
+          params._spiralFlowActive = false;
+          params._focusedEffect = null;
+          resetAllButtons();
+        },
+      },
+      "stop",
+    )
+    .name("STOP ALL");
+
+  // CHAOS MIX button
+  let chaosMixBtn = null;
+  let chaosMixEl = null;
+
+  const chaosAction = {
+    chaosMix: () => {
+      if (isChaosMixRunning()) {
+        stopChaosMix();
+        if (chaosMixEl) {
+          chaosMixEl.style.background = "";
+          chaosMixEl.style.animation = "";
+        }
+      } else {
+        params._isReturning = false;
+        startChaosMix();
+        if (chaosMixEl) {
+          chaosMixEl.style.background =
+            "linear-gradient(90deg, #ff00ff, #00ffff, #ff00ff)";
+          chaosMixEl.style.backgroundSize = "200% 100%";
+          chaosMixEl.style.animation = "chaosGradient 2s linear infinite";
+        }
+      }
+    },
+  };
+
+  chaosMixBtn = actionsFolder.add(chaosAction, "chaosMix").name("🌀 CHAOS MIX");
+
+  setTimeout(() => {
+    chaosMixEl = chaosMixBtn.domElement.closest(".controller");
+    if (chaosMixEl) {
+      chaosMixEl.style.borderLeft = "3px solid #ff00ff";
+      chaosMixEl.style.fontWeight = "600";
+      chaosMixEl.style.letterSpacing = "1px";
+    }
+  }, 0);
+
+  // Initialize chaos mix with callbacks
+  initChaosMix(
+    (effectName, action) => {
+      if (action === "reset") {
+        resetAllButtons();
+        if (chaosMixEl) {
+          chaosMixEl.style.background = "";
+          chaosMixEl.style.animation = "";
+        }
+      } else if (action === "activate") {
+        updateButtonStyle(effectName, "active-focused");
+        Object.keys(params.activeEffects).forEach((name) => {
+          if (params.activeEffects[name] && name !== effectName) {
+            updateButtonStyle(name, "active-dimmed");
+          }
+        });
+        updateParamsBorder(effectName);
+      } else if (action === "deactivate") {
+        updateButtonStyle(effectName, "inactive");
+      }
+    },
+    (newColor) => {
+      onColorChange();
+      onBloomChange();
+      gui.controllersRecursive().forEach((c) => {
+        if (
+          c.property === "color" ||
+          c.property === "bloomStrength" ||
+          c.property === "bloomRadius"
+        ) {
+          c.updateDisplay();
+        }
+      });
+    },
+    () => {
+      gui.controllersRecursive().forEach((c) => {
+        if (
+          c.property === "effectIntensity" ||
+          c.property === "effectSpeed" ||
+          c.property === "bloomStrength" ||
+          c.property === "bloomRadius"
+        ) {
+          c.updateDisplay();
+        }
+      });
+    },
+  );
+
+  // Store resetAllButtons for use in main.js
+  params._resetAllButtons = resetAllButtons;
+
+  // INCUBATE button
+  let incubateBtn = null;
+  let incubateEl = null;
+
+  const incubateAction = {
+    incubate: () => {
+      toggleIncubation();
+    },
+  };
+
+  incubateBtn = actionsFolder
+    .add(incubateAction, "incubate")
+    .name("🔮 INCUBATE");
+
+  setTimeout(() => {
+    incubateEl = incubateBtn.domElement.closest(".controller");
+    if (incubateEl) {
+      incubateEl.style.borderLeft = "3px solid #00ffff";
+      incubateEl.style.fontWeight = "600";
+      incubateEl.style.letterSpacing = "1px";
+    }
+  }, 0);
+
+  setOnIncubateChange((isIncubated) => {
+    if (incubateEl) {
+      if (isIncubated) {
+        incubateEl.style.background =
+          "linear-gradient(90deg, #00ffff, #ff00ff, #00ffff)";
+        incubateEl.style.backgroundSize = "200% 100%";
+        incubateEl.style.animation = "chaosGradient 3s linear infinite";
+        incubateBtn.name("🔮 RELEASE");
+      } else {
+        incubateEl.style.background = "";
+        incubateEl.style.animation = "";
+        incubateBtn.name("🔮 INCUBATE");
+      }
+    }
+  });
+
+  // CUBE MODE toggle button
+  let modeBtn = null;
+  let modeEl = null;
+
+  const modeAction = {
+    toggleMode: () => {
+      const newMode = toggleIncubationMode();
+      modeBtn.name(
+        newMode === "holographic" ? "🎲 RUBIX MODE" : "🔮 HOLO MODE",
+      );
+    },
+  };
+
+  modeBtn = actionsFolder.add(modeAction, "toggleMode").name("🎲 RUBIX MODE");
+
+  setTimeout(() => {
+    modeEl = modeBtn.domElement.closest(".controller");
+    if (modeEl) {
+      modeEl.style.borderLeft = "3px solid #ff00ff";
+      modeEl.style.fontWeight = "600";
+    }
+  }, 0);
+
+  setOnModeChange((mode) => {
+    if (modeBtn) {
+      modeBtn.name(mode === "holographic" ? "🎲 RUBIX MODE" : "🔮 HOLO MODE");
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // EFFECT PARAMETERS
+  // ═══════════════════════════════════════════════════════════════
+  const effectParamsFolder = gui.addFolder("EFFECT PARAMS");
+
+  setTimeout(() => {
+    effectParamsFolderEl = effectParamsFolder.domElement;
+    if (effectParamsFolderEl) {
+      effectParamsFolderEl.style.transition = "border-color 0.3s";
+      effectParamsFolderEl.style.borderLeft = "3px solid #333";
+    }
+  }, 0);
+
+  effectParamsFolder
+    .add(params, "effectIntensity", 0, 300, 1)
+    .name("Intensity")
+    .onChange(() => {
+      if (params._focusedEffect) {
+        saveParamsToEffect(params._focusedEffect);
+      }
+    });
+  effectParamsFolder
+    .add(params, "effectSpeed", 0.1, 5, 0.1)
+    .name("Effect Speed")
+    .onChange(() => {
+      if (params._focusedEffect) {
+        saveParamsToEffect(params._focusedEffect);
+      }
+    });
+  effectParamsFolder
+    .add(params, "spiralFlowSpeed", 0.1, 3, 0.1)
+    .name("Flow Speed")
+    .onChange(() => {
+      if (params._focusedEffect === "spiralFlow") {
+        saveParamsToEffect("spiralFlow");
+      }
+    });
+  effectParamsFolder
+    .add(params, "spiralFlowWaves", 1, 10, 1)
+    .name("Wave Groups")
+    .onChange(() => {
+      if (params._focusedEffect === "spiralFlow") {
+        saveParamsToEffect("spiralFlow");
+      }
+    });
+
+  return gui;
+}
